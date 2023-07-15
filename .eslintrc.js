@@ -37,7 +37,7 @@ module.exports = {
           {
             pattern: "@nestjs/**",
             group: "internal",
-            position: "after",
+            position: "before",
           },
           {
             pattern: "@/**",

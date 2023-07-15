@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/seoko97/SEOKO-server.git",
-  "author": "seokho10007 <sukho1007@naver.com>",
+  "author": "seoko97 <sukho1007@naver.com>",
   "license": "MIT",
   "scripts": {
     "build": "nest build",
@@ -21,8 +21,12 @@
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/mongoose": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "class-validator": "^0.14.0",
+    "mongoose": "^7.3.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },
