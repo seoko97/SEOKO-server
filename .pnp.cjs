@@ -9202,13 +9202,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["micromatch", "npm:4.0.5"],\
             ["semver", "npm:7.5.4"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"],\
-            ["webpack", null]\
+            ["webpack", "virtual:a457ff59f2815d4b942f0c138b8fcd2309c2207bd1dfea2a0b20d11af769b32d0e35b7ebf49f5eade4aa36a3ef97609ed150b9ae60aff68c5742bd9db99c0102#npm:5.88.1"]\
           ],\
           "packagePeers": [\
             "@types/typescript",\
             "@types/webpack",\
-            "typescript",\
-            "webpack"\
+            "typescript"\
           ],\
           "linkType": "HARD"\
         }]\

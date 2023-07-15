@@ -7781,7 +7781,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.88.1":
+"webpack@npm:*, webpack@npm:5.88.1":
   version: 5.88.1
   resolution: "webpack@npm:5.88.1"
   dependencies:
