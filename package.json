@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/seoko97/SEOKO-server.git",
-  "author": "seokho10007 <sukho1007@naver.com>",
+  "author": "seoko97 <sukho1007@naver.com>",
   "license": "MIT",
   "scripts": {
     "build": "nest build",
