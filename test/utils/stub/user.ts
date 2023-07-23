@@ -1,7 +1,5 @@
-import mongoose from "mongoose";
-
 const USER_STUB = {
-  _id: new mongoose.Types.ObjectId(),
+  _id: "id",
   username: "test",
   userId: "test",
   password: "test",
@@ -9,4 +7,10 @@ const USER_STUB = {
   nid: 1,
 };
 
-export { USER_STUB };
+const USER_INPUT_STUB = {
+  username: "test",
+  userId: "test",
+  password: "test",
+};
+
+export { USER_STUB, USER_INPUT_STUB };
