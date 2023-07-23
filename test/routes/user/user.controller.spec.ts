@@ -25,8 +25,6 @@ describe("UserController", () => {
 
     controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
-
-    jest.clearAllMocks();
   });
 
   describe("유저 생성", () => {
@@ -69,6 +67,36 @@ describe("UserController", () => {
         } catch (e) {
           expect(e.status).toBe(400);
           expect(e.message).toBe("올바르지 않은 유저 정보입니다.");
+          expect(e).toBeInstanceOf(BadRequestException);
+        }
+      });
+    });
+  });
+
+  describe("유저 조회", () => {
+    let serviceGetByUserIdSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      serviceGetByUserIdSpy = jest.spyOn(service, "getByUserId");
+    });
+
+    it("성공", async () => {
+      const user = await controller.getUser(USER_STUB.userId);
+
+      expect(user).toEqual(USER_STUB);
+    });
+
+    describe("실패", () => {
+      it("존재하지 않는 유저", async () => {
+        serviceGetByUserIdSpy.mockImplementationOnce(() => {
+          throw new BadRequestException("존재하지 않는 유저입니다.");
+        });
+
+        try {
+          await controller.getUser(USER_STUB.userId);
+        } catch (e) {
+          expect(e.status).toBe(400);
+          expect(e.message).toBe("존재하지 않는 유저입니다.");
           expect(e).toBeInstanceOf(BadRequestException);
         }
       });
