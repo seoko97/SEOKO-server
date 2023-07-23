@@ -1,43 +1,79 @@
-import { getModelToken } from "@nestjs/mongoose";
+import { ConflictException } from "@nestjs/common";
 import { TestingModule } from "@nestjs/testing";
 
+import { MockUserRepository } from "test/utils/mock/user";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { MongoMemoryServer } from "test/utils/mongo/mongodb-memory-server-setup";
+import { USER_STUB } from "test/utils/stub/user";
 
 import { UserRepository } from "@/routes/user/user.repository";
-import { User, UserModel } from "@/routes/user/user.schema";
 import { UserService } from "@/routes/user/user.service";
 
 describe("UserService", () => {
   let service: UserService;
   let repository: UserRepository;
-  let model: UserModel;
 
   beforeEach(async () => {
     const module: TestingModule = await createTestingModule({
       providers: [
         UserService,
-        UserRepository,
         {
-          provide: getModelToken(User.name),
-          useValue: User,
+          provide: UserRepository,
+          useValue: MockUserRepository,
         },
       ],
     });
 
     service = module.get<UserService>(UserService);
     repository = module.get<UserRepository>(UserRepository);
-    model = module.get<UserModel>(getModelToken(User.name));
-
-    repository;
-    model;
   });
 
-  afterEach(async () => {
-    await MongoMemoryServer.stop();
+  describe("유저 생성", () => {
+    let repositoryGetByUserIdSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      repositoryGetByUserIdSpy = jest.spyOn(repository, "getByUserId");
+    });
+
+    it("성공", async () => {
+      const user = await service.create(USER_STUB);
+
+      expect(user).toEqual(USER_STUB);
+    });
+
+    describe("실패", () => {
+      it("이미 존재하는 유저", async () => {
+        repositoryGetByUserIdSpy.mockImplementationOnce(() => null);
+
+        try {
+          await service.create(USER_STUB);
+        } catch (e) {
+          expect(e.status).toBe(409);
+          expect(e.message).toBe("이미 존재하는 유저입니다.");
+          expect(e).toBeInstanceOf(ConflictException);
+        }
+      });
+    });
   });
 
-  it("should be defined", async () => {
-    expect(service).toBeDefined();
+  describe("유저 조회", () => {
+    const USER_STUB_NON_PASSWORD = { ...USER_STUB };
+
+    delete USER_STUB_NON_PASSWORD.password;
+
+    // 유저 아이디로 조회시애는 패스워드가 존재함
+    it("유저 아이디로 조회", async () => {
+      const user = await service.getByUserId(USER_STUB.userId);
+
+      expect(user).toEqual(USER_STUB_NON_PASSWORD);
+      expect(user.password).toBeDefined();
+    });
+
+    // unique id로 조회시 패스워드가 존재하지 않음
+    it("unique id로 조회", async () => {
+      const user = await service.getById(USER_STUB._id);
+
+      expect(user).toEqual(USER_STUB_NON_PASSWORD);
+      expect(user.password).toBeUndefined();
+    });
   });
 });
