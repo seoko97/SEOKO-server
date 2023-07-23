@@ -11,8 +11,8 @@ const MockUserRepository = jest.fn().mockReturnValue({
   create: jest.fn().mockResolvedValue(USER_STUB),
   getByUserId: jest.fn().mockResolvedValue(USER_STUB),
   getById: jest.fn().mockResolvedValue(USER_STUB),
+  hashPassword: jest.fn().mockResolvedValue("hashedPassword"),
   updateRefreshToken: jest.fn(),
-  hashPassword: jest.fn(),
 });
 
 export { MockUserService, MockUserRepository };
