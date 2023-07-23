@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from "@nestjs/common";
 
 import { CreateUserDTO } from "@/routes/user/dto/create-user.dto";
 import { UserRepository } from "@/routes/user/user.repository";
+import { USER_ERROR } from "@/utils/constants";
 
 @Injectable()
 export class UserService {
@@ -10,7 +11,7 @@ export class UserService {
   async create(createUserDto: CreateUserDTO) {
     const user = await this.userRepository.getByUserId(createUserDto.userId);
 
-    if (user) throw new ConflictException("이미 존재하는 유저입니다.");
+    if (user) throw new ConflictException(USER_ERROR.CONFLICT);
 
     return this.userRepository.create(createUserDto);
   }

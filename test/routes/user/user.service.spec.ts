@@ -3,10 +3,11 @@ import { TestingModule } from "@nestjs/testing";
 
 import { MockUserRepository } from "test/utils/mock/user";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub/user";
+import { USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
 
 import { UserRepository } from "@/routes/user/user.repository";
 import { UserService } from "@/routes/user/user.service";
+import { USER_ERROR } from "@/utils/constants";
 
 describe("UserService", () => {
   let service: UserService;
@@ -25,6 +26,8 @@ describe("UserService", () => {
 
     service = module.get<UserService>(UserService);
     repository = module.get<UserRepository>(UserRepository);
+
+    jest.clearAllMocks();
   });
 
   describe("유저 생성", () => {
@@ -48,7 +51,7 @@ describe("UserService", () => {
           await service.create(USER_STUB);
         } catch (e) {
           expect(e.status).toBe(409);
-          expect(e.message).toBe("이미 존재하는 유저입니다.");
+          expect(e.message).toBe(USER_ERROR.CONFLICT);
           expect(e).toBeInstanceOf(ConflictException);
         }
       });
