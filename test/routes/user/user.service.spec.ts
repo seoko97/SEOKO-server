@@ -3,7 +3,7 @@ import { TestingModule } from "@nestjs/testing";
 
 import { MockUserRepository } from "test/utils/mock/user";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { USER_STUB } from "test/utils/stub/user";
+import { USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub/user";
 
 import { UserRepository } from "@/routes/user/user.repository";
 import { UserService } from "@/routes/user/user.service";
@@ -18,7 +18,7 @@ describe("UserService", () => {
         UserService,
         {
           provide: UserRepository,
-          useValue: MockUserRepository,
+          useClass: MockUserRepository,
         },
       ],
     });
@@ -35,6 +35,8 @@ describe("UserService", () => {
     });
 
     it("성공", async () => {
+      repositoryGetByUserIdSpy.mockImplementationOnce(() => null);
+
       const user = await service.create(USER_STUB);
 
       expect(user).toEqual(USER_STUB);
@@ -42,8 +44,6 @@ describe("UserService", () => {
 
     describe("실패", () => {
       it("이미 존재하는 유저", async () => {
-        repositoryGetByUserIdSpy.mockImplementationOnce(() => null);
-
         try {
           await service.create(USER_STUB);
         } catch (e) {
@@ -56,15 +56,11 @@ describe("UserService", () => {
   });
 
   describe("유저 조회", () => {
-    const USER_STUB_NON_PASSWORD = { ...USER_STUB };
-
-    delete USER_STUB_NON_PASSWORD.password;
-
     // 유저 아이디로 조회시애는 패스워드가 존재함
     it("유저 아이디로 조회", async () => {
       const user = await service.getByUserId(USER_STUB.userId);
 
-      expect(user).toEqual(USER_STUB_NON_PASSWORD);
+      expect(user).toEqual(USER_STUB);
       expect(user.password).toBeDefined();
     });
 
