@@ -3,7 +3,7 @@ import { TestingModule } from "@nestjs/testing";
 
 import { MockUserService } from "test/utils/mock/user";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { USER_STUB } from "test/utils/stub/user";
+import { USER_INPUT_STUB, USER_STUB } from "test/utils/stub/user";
 
 import { UserController } from "@/routes/user/user.controller";
 import { UserService } from "@/routes/user/user.service";
@@ -37,7 +37,7 @@ describe("UserController", () => {
     });
 
     it("성공", async () => {
-      const user = await controller.createUser(USER_STUB);
+      const user = await controller.createUser(USER_INPUT_STUB);
 
       expect(user).toEqual(USER_STUB);
     });
@@ -49,7 +49,7 @@ describe("UserController", () => {
         });
 
         try {
-          await controller.createUser(USER_STUB);
+          await controller.createUser(USER_INPUT_STUB);
         } catch (e) {
           expect(e.status).toBe(409);
           expect(e.message).toBe("이미 존재하는 유저입니다.");
@@ -74,6 +74,10 @@ describe("UserController", () => {
   });
 
   describe("유저 조회", () => {
+    const USER_STUB_NON_PASSWORD = { ...USER_STUB };
+
+    delete USER_STUB_NON_PASSWORD.password;
+
     let serviceGetByUserIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -83,7 +87,7 @@ describe("UserController", () => {
     it("성공", async () => {
       const user = await controller.getUser(USER_STUB.userId);
 
-      expect(user).toEqual(USER_STUB);
+      expect(user).toEqual(USER_STUB_NON_PASSWORD);
     });
 
     describe("실패", () => {
