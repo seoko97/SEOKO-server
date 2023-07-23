@@ -1,4 +1,4 @@
-import { USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub/user";
+import { USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
 
 const MockUserService = jest.fn().mockReturnValue({
   create: jest.fn().mockResolvedValue(USER_STUB),
