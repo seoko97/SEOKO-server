@@ -1,12 +1,14 @@
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { TestingModule } from "@nestjs/testing";
 
-import { MockUserService } from "test/utils/mock/user";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { USER_INPUT_STUB, USER_STUB } from "test/utils/stub/user";
+import { USER_INPUT_STUB, USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
 
 import { UserController } from "@/routes/user/user.controller";
 import { UserService } from "@/routes/user/user.service";
+import { USER_ERROR } from "@/utils/constants";
+
+jest.mock("@/routes/user/user.service");
 
 describe("UserController", () => {
   let controller: UserController;
@@ -15,16 +17,13 @@ describe("UserController", () => {
   beforeEach(async () => {
     const module: TestingModule = await createTestingModule({
       controllers: [UserController],
-      providers: [
-        {
-          provide: UserService,
-          useClass: MockUserService,
-        },
-      ],
+      providers: [UserService],
     });
 
     controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
+
+    jest.clearAllMocks();
   });
 
   describe("유저 생성", () => {
@@ -37,72 +36,76 @@ describe("UserController", () => {
     });
 
     it("성공", async () => {
+      serviceCreateSpy.mockResolvedValueOnce(USER_STUB);
+
       const user = await controller.createUser(USER_INPUT_STUB);
 
+      expect(serviceCreateSpy).toHaveBeenCalledWith(USER_INPUT_STUB);
       expect(user).toEqual(USER_STUB);
     });
 
     describe("실패", () => {
       it("이미 존재하는 유저", async () => {
-        serviceGetByUserIdSpy.mockImplementationOnce(() => {
-          throw new ConflictException("이미 존재하는 유저입니다.");
-        });
+        serviceGetByUserIdSpy.mockRejectedValueOnce(new ConflictException(USER_ERROR.CONFLICT));
 
         try {
           await controller.createUser(USER_INPUT_STUB);
         } catch (e) {
           expect(e.status).toBe(409);
-          expect(e.message).toBe("이미 존재하는 유저입니다.");
+          expect(e.message).toBe(USER_ERROR.CONFLICT);
           expect(e).toBeInstanceOf(ConflictException);
         }
+
+        expect(serviceCreateSpy).toHaveBeenCalledWith(USER_INPUT_STUB);
       });
 
       it("올바르지 않은 유저 정보", async () => {
-        serviceCreateSpy.mockImplementationOnce(() => {
-          throw new BadRequestException("올바르지 않은 유저 정보입니다.");
-        });
+        serviceCreateSpy.mockRejectedValueOnce(new BadRequestException(USER_ERROR.BAD_REQUEST));
 
         try {
-          await controller.createUser(USER_STUB);
+          await controller.createUser(USER_INPUT_STUB);
         } catch (e) {
           expect(e.status).toBe(400);
-          expect(e.message).toBe("올바르지 않은 유저 정보입니다.");
+          expect(e.message).toBe(USER_ERROR.BAD_REQUEST);
           expect(e).toBeInstanceOf(BadRequestException);
         }
+
+        expect(serviceCreateSpy).toHaveBeenCalledWith(USER_INPUT_STUB);
       });
     });
   });
 
   describe("유저 조회", () => {
-    const USER_STUB_NON_PASSWORD = { ...USER_STUB };
+    const TOKEN_USER = { _id: USER_STUB._id };
 
-    delete USER_STUB_NON_PASSWORD.password;
-
-    let serviceGetByUserIdSpy: jest.SpyInstance;
+    let serviceGetByIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      serviceGetByUserIdSpy = jest.spyOn(service, "getByUserId");
+      serviceGetByIdSpy = jest.spyOn(service, "getById");
     });
 
     it("성공", async () => {
-      const user = await controller.getUser(USER_STUB.userId);
+      serviceGetByIdSpy.mockResolvedValueOnce(USER_STUB_NON_PASSWORD);
 
+      const user = await controller.getUser(TOKEN_USER);
+
+      expect(serviceGetByIdSpy).toHaveBeenCalledWith(USER_STUB._id);
       expect(user).toEqual(USER_STUB_NON_PASSWORD);
     });
 
     describe("실패", () => {
       it("존재하지 않는 유저", async () => {
-        serviceGetByUserIdSpy.mockImplementationOnce(() => {
-          throw new BadRequestException("존재하지 않는 유저입니다.");
-        });
+        serviceGetByIdSpy.mockRejectedValueOnce(new BadRequestException(USER_ERROR.BAD_REQUEST));
 
         try {
-          await controller.getUser(USER_STUB.userId);
+          await controller.getUser(TOKEN_USER);
         } catch (e) {
           expect(e.status).toBe(400);
-          expect(e.message).toBe("존재하지 않는 유저입니다.");
+          expect(e.message).toBe(USER_ERROR.BAD_REQUEST);
           expect(e).toBeInstanceOf(BadRequestException);
         }
+
+        expect(serviceGetByIdSpy).toHaveBeenCalledWith(USER_STUB._id);
       });
     });
   });
