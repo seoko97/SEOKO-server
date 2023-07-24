@@ -1,11 +1,13 @@
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { TestingModule } from "@nestjs/testing";
 
+import { RESPONSE_MOCK } from "test/utils/mock";
 import createTestingModule from "test/utils/mongo/createTestModule";
 import { TOKEN_STUB, TOKEN_USER_STUB, USER_STUB } from "test/utils/stub";
 
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
 import { AuthService } from "@/routes/auth/auth.service";
+import { EJwtTokenType } from "@/types";
 import { USER_ERROR } from "@/utils/constants";
 
 jest.mock("@/routes/user/user.service");
@@ -49,8 +51,6 @@ describe("AuthService", () => {
   });
 
   describe("로그인", () => {
-    // 로그인시 access token과 refresh token을 발급
-    // response header를 mock으로 만들어서 테스트
     it("성공", async () => {
       authService.signature = jest.fn().mockReturnValue(TOKEN_STUB);
 
@@ -100,6 +100,40 @@ describe("AuthService", () => {
           expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
           expect(e.message).toBe(USER_ERROR.UNAUTHORIZED);
         }
+      });
+    });
+  });
+
+  describe("response header에 토큰 등록", () => {
+    const res = RESPONSE_MOCK;
+
+    it("access token", () => {
+      authService.registerTokenInCookie({
+        type: EJwtTokenType.ACCESS,
+        token: TOKEN_STUB,
+        res,
+      });
+
+      expect(res.cookie).toHaveBeenCalledTimes(1);
+      expect(res.cookie).toHaveBeenCalledWith(authConstantProvider.ACCESS_HEADER, TOKEN_STUB, {
+        httpOnly: true,
+        maxAge: Number(authConstantProvider.COOKIE_MAX_AGE),
+        secure: true,
+      });
+    });
+
+    it("refresh token", () => {
+      authService.registerTokenInCookie({
+        type: EJwtTokenType.REFRESH,
+        token: TOKEN_STUB,
+        res,
+      });
+
+      expect(res.cookie).toHaveBeenCalledTimes(1);
+      expect(res.cookie).toHaveBeenCalledWith(authConstantProvider.REFRESH_HEADER, TOKEN_STUB, {
+        httpOnly: true,
+        maxAge: Number(authConstantProvider.COOKIE_MAX_AGE),
+        secure: true,
       });
     });
   });
