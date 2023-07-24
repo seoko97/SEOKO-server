@@ -1,10 +1,10 @@
+import { CookieOptions, Response } from "express";
+
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 
-import * as bcrypt from "bcrypt";
-
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
-import { TTokenUser } from "@/types";
+import { EJwtTokenType, IRegisterTokenInCookieArgs, TTokenUser } from "@/types";
 import { USER_ERROR } from "@/utils/constants";
 
 @Injectable()
@@ -46,13 +46,27 @@ export class AuthService {
     return this.jwtService.sign({ id: _id }, options);
   }
 
-  // 토큰을 쿠키에 등록
-  registerTokenInCookie() {
-    return;
+  // response header에 access token과 refresh token을 등록
+  registerTokenInCookie({ type, token, res }: IRegisterTokenInCookieArgs) {
+    const { ACCESS_HEADER, REFRESH_HEADER, COOKIE_MAX_AGE } = this.authConstantProvider;
+
+    const isRefresh = type === EJwtTokenType.REFRESH;
+    const tokenName = isRefresh ? REFRESH_HEADER : ACCESS_HEADER;
+
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      maxAge: Number(COOKIE_MAX_AGE),
+      secure: true,
+    };
+
+    res.cookie(tokenName, token, cookieOptions);
   }
 
   // response header에서 access token과 refresh token을 삭제
-  clearCookie() {
-    return;
+  clearCookie(res: Response) {
+    const { ACCESS_HEADER, REFRESH_HEADER } = this.authConstantProvider;
+
+    res.clearCookie(ACCESS_HEADER);
+    res.clearCookie(REFRESH_HEADER);
   }
 }
