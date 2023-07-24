@@ -51,19 +51,19 @@ describe("AuthController", () => {
       const result = await controller.signin(USER_ID_PASSWORD_STUB, TOKEN_USER_STUB, RESPONSE_MOCK);
 
       expect(userServiceGetByIdSpy).toBeCalledWith(TOKEN_USER_STUB._id);
-      expect(authServiceSigninSpy).toBeCalledWith(USER_ID_PASSWORD_STUB);
+      expect(authServiceSigninSpy).toBeCalledWith(USER_STUB_NON_PASSWORD);
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledTimes(2);
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledWith({
         type: EJwtTokenType.ACCESS,
         token: TOKEN_STUB,
-        RESPONSE_MOCK,
+        res: RESPONSE_MOCK,
       });
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledWith({
         type: EJwtTokenType.REFRESH,
         token: TOKEN_STUB,
-        RESPONSE_MOCK,
+        res: RESPONSE_MOCK,
       });
-      expect(result).toEqual(USER_STUB_NON_PASSWORD);
+      expect(result).toEqual({ username: USER_STUB_NON_PASSWORD.username });
     });
   });
 
@@ -101,12 +101,12 @@ describe("AuthController", () => {
       await controller.refresh(TOKEN_USER_STUB, RESPONSE_MOCK);
 
       expect(authServiceSigninSpy).toBeCalledTimes(1);
-      expect(authServiceSigninSpy).toBeCalledWith([TOKEN_STUB, TOKEN_STUB]);
+      expect(authServiceSigninSpy).toBeCalledWith(TOKEN_USER_STUB);
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledTimes(1);
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledWith({
         type: EJwtTokenType.ACCESS,
         token: TOKEN_STUB,
-        RESPONSE_MOCK,
+        res: RESPONSE_MOCK,
       });
     });
   });
