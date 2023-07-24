@@ -3,13 +3,12 @@ import { TestingModule } from "@nestjs/testing";
 
 import * as bcrypt from "bcrypt";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { TOKEN_STUB, USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
+import { TOKEN_STUB, TOKEN_USER_STUB, USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
 
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
 import { AuthService } from "@/routes/auth/auth.service";
 import { USER_ERROR } from "@/utils/constants";
 
-jest.mock("@/routes/auth/auth.service");
 jest.mock("@/routes/user/user.service");
 jest.mock("@/common/providers/auth-constant.provider");
 jest.mock("bcrypt");
@@ -52,24 +51,15 @@ describe("AuthService", () => {
   });
 
   describe("로그인", () => {
-    let authServiceSignatureSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      authServiceSignatureSpy = jest.spyOn(authService, "signature");
-    });
-
     // 로그인시 access token과 refresh token을 발급
     // response header를 mock으로 만들어서 테스트
     it("성공", async () => {
-      authServiceSignatureSpy.mockReturnValueOnce(TOKEN_STUB);
+      authService.signature = jest.fn().mockReturnValue(TOKEN_STUB);
 
-      const USER_INPUT = {
-        userId: USER_STUB.userId,
-        password: USER_STUB.password,
-      };
+      const result = await authService.signin(TOKEN_USER_STUB);
 
-      const result = await authService.signin(USER_INPUT);
-
+      expect(authService.signature).toHaveBeenCalledTimes(2);
+      expect(authService.signature).toReturnWith(TOKEN_STUB);
       expect(result).toEqual([TOKEN_STUB, TOKEN_STUB]);
     });
   });
