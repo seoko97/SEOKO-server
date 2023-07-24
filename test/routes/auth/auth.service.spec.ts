@@ -1,18 +1,17 @@
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { TestingModule } from "@nestjs/testing";
 
-import * as bcrypt from "bcrypt";
+import { RESPONSE_MOCK } from "test/utils/mock";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { TOKEN_STUB, USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
+import { TOKEN_STUB, TOKEN_USER_STUB, USER_STUB } from "test/utils/stub";
 
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
 import { AuthService } from "@/routes/auth/auth.service";
+import { EJwtTokenType } from "@/types";
 import { USER_ERROR } from "@/utils/constants";
 
-jest.mock("@/routes/auth/auth.service");
 jest.mock("@/routes/user/user.service");
 jest.mock("@/common/providers/auth-constant.provider");
-jest.mock("bcrypt");
 
 describe("AuthService", () => {
   let authService: AuthService;
@@ -52,57 +51,14 @@ describe("AuthService", () => {
   });
 
   describe("로그인", () => {
-    let authServiceSignatureSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      authServiceSignatureSpy = jest.spyOn(authService, "signature");
-    });
-
-    // 로그인시 access token과 refresh token을 발급
-    // response header를 mock으로 만들어서 테스트
     it("성공", async () => {
-      authServiceSignatureSpy.mockReturnValueOnce(TOKEN_STUB);
+      authService.signature = jest.fn().mockReturnValue(TOKEN_STUB);
 
-      const USER_INPUT = {
-        userId: USER_STUB.userId,
-        password: USER_STUB.password,
-      };
+      const result = await authService.signin(TOKEN_USER_STUB);
 
-      const result = await authService.signin(USER_INPUT);
-
+      expect(authService.signature).toHaveBeenCalledTimes(2);
+      expect(authService.signature).toReturnWith(TOKEN_STUB);
       expect(result).toEqual([TOKEN_STUB, TOKEN_STUB]);
-    });
-  });
-
-  describe("입력한 아이디와 비밀번호가 유저 정보와 일치하는지 확인", () => {
-    let bcryptCompareSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      bcryptCompareSpy = jest.spyOn(bcrypt, "compare");
-    });
-
-    it("성공", async () => {
-      bcryptCompareSpy.mockReturnValueOnce(true);
-
-      const result = await authService.comparePassword(USER_STUB.password, USER_STUB.password);
-
-      expect(result).toEqual(USER_STUB_NON_PASSWORD);
-    });
-
-    describe("실패", () => {
-      // 실패 조건?
-      // 1. 유저 정보가 없는 경우
-      // 2. 비밀번호가 일치하지 않는 경우
-      it("비밀번호가 일치하지 않는 경우", async () => {
-        bcryptCompareSpy.mockReturnValueOnce(false);
-
-        try {
-          await authService.comparePassword(USER_STUB.password, USER_STUB.password);
-        } catch (e) {
-          expect(e.status).toBe(400);
-          expect(e.message).toBe(USER_ERROR.BAD_REQUEST);
-        }
-      });
     });
   });
 
@@ -116,21 +72,20 @@ describe("AuthService", () => {
     it("성공", async () => {
       jwtServiceVerifySpy.mockReturnValueOnce(true);
 
-      const result = await authService.verifyRefreshToken(USER_STUB, USER_STUB.refreshToken);
+      const result = await authService.verifyRefreshToken(USER_STUB.refreshToken);
 
       expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
-      expect(jwtServiceVerifySpy).toHaveBeenCalledWith({
-        _id: USER_STUB_NON_PASSWORD._id,
-      });
+      expect(jwtServiceVerifySpy).toHaveBeenCalledWith(USER_STUB.refreshToken);
       expect(result).toBe(true);
     });
 
     describe("실패", () => {
       it("유저 정보에 refresh token이 없는 경우", async () => {
         try {
-          await authService.verifyRefreshToken(USER_STUB, null);
+          await authService.verifyRefreshToken(null);
         } catch (e) {
           expect(e.status).toBe(401);
+          expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
           expect(e.message).toBe(USER_ERROR.UNAUTHORIZED);
         }
       });
@@ -139,11 +94,46 @@ describe("AuthService", () => {
         jwtServiceVerifySpy.mockRejectedValueOnce(new Error());
 
         try {
-          await authService.verifyRefreshToken(USER_STUB, USER_STUB.refreshToken);
+          await authService.verifyRefreshToken(USER_STUB.refreshToken);
         } catch (e) {
           expect(e.status).toBe(401);
+          expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
           expect(e.message).toBe(USER_ERROR.UNAUTHORIZED);
         }
+      });
+    });
+  });
+
+  describe("response header에 토큰 등록", () => {
+    const res = RESPONSE_MOCK;
+
+    it("access token", () => {
+      authService.registerTokenInCookie({
+        type: EJwtTokenType.ACCESS,
+        token: TOKEN_STUB,
+        res,
+      });
+
+      expect(res.cookie).toHaveBeenCalledTimes(1);
+      expect(res.cookie).toHaveBeenCalledWith(authConstantProvider.ACCESS_HEADER, TOKEN_STUB, {
+        httpOnly: true,
+        maxAge: Number(authConstantProvider.COOKIE_MAX_AGE),
+        secure: true,
+      });
+    });
+
+    it("refresh token", () => {
+      authService.registerTokenInCookie({
+        type: EJwtTokenType.REFRESH,
+        token: TOKEN_STUB,
+        res,
+      });
+
+      expect(res.cookie).toHaveBeenCalledTimes(1);
+      expect(res.cookie).toHaveBeenCalledWith(authConstantProvider.REFRESH_HEADER, TOKEN_STUB, {
+        httpOnly: true,
+        maxAge: Number(authConstantProvider.COOKIE_MAX_AGE),
+        secure: true,
       });
     });
   });
