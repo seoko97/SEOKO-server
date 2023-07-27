@@ -9,8 +9,14 @@ import { IS_PUBLIC_KEY } from "@/utils/constants";
 const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
   @Injectable()
   class JwtAuthGuard extends AuthGuard(key) {
+    HEADER: string;
+
     constructor(private readonly configService: ConfigService) {
       super();
+
+      this.HEADER = this.configService.get<string>(
+        key === EJwtTokenType.ACCESS ? "ACCESS_HEADER" : "REFRESH_HEADER",
+      );
     }
 
     handleRequest(err: unknown, user: any, info: any) {
@@ -28,6 +34,18 @@ const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
       }
 
       return user;
+    }
+
+    getRequest(context: ExecutionContext) {
+      const req = context.switchToHttp().getRequest();
+
+      const cookies = req.cookies;
+
+      const token = cookies[this.HEADER];
+
+      if (token) req.headers.authorization = `Bearer ${token}`;
+
+      return req;
     }
   }
 
