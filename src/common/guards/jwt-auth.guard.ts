@@ -1,17 +1,46 @@
-import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ExecutionContext, Injectable, Type, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Reflector } from "@nestjs/core";
-import { AuthGuard } from "@nestjs/passport";
+import { AuthGuard, IAuthGuard } from "@nestjs/passport";
 
+import { EJwtTokenType } from "@/types";
 import { IS_PUBLIC_KEY } from "@/utils/constants";
 
+const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
+  @Injectable()
+  class JwtAuthGuard extends AuthGuard(key) {
+    constructor(private readonly configService: ConfigService) {
+      super();
+    }
+
+    handleRequest(err: unknown, user: any, info: any) {
+      if (err || !user) {
+        switch (info?.message) {
+          case "No auth token":
+            throw new UnauthorizedException("유저를 인증할 수 없습니다.");
+          case "jwt expired":
+            throw new UnauthorizedException("인증 시간이 만료되었습니다.");
+          case "invalid token":
+            throw new UnauthorizedException("유효하지 않은 정보입니다.");
+          default:
+            throw err || new UnauthorizedException(info.message);
+        }
+      }
+
+      return user;
+    }
+  }
+
+  return JwtAuthGuard;
+};
+
 @Injectable()
-export class JwtAuthGuard extends AuthGuard("jwt") {
+export class AccessJwtAuthGuard extends generateJwtAuthGuard(`jwt-${EJwtTokenType.ACCESS}`) {
   constructor(
     private readonly reflector: Reflector,
     private readonly configService: ConfigService,
   ) {
-    super();
+    super(configService);
   }
 
   canActivate(context: ExecutionContext) {
@@ -26,30 +55,6 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 
     return super.canActivate(context);
   }
-
-  handleRequest(err: unknown, user: any, info: any) {
-    if (err || !user) {
-      throw err || new UnauthorizedException(info.message);
-    }
-    return user;
-  }
-
-  getRequest(context: ExecutionContext) {
-    const req = context.switchToHttp().getRequest();
-
-    const cookies = req.cookies;
-
-    const accessToken = cookies[this.configService.get<string>("ACCESS_HEADER")];
-    const refreshToken = cookies[this.configService.get<string>("REFRESH_HEADER")];
-
-    if (accessToken) {
-      req.headers.authorization = `Bearer ${accessToken}`;
-    }
-
-    if (refreshToken) {
-      req.headers.refresh = `Bearer ${refreshToken}`;
-    }
-
-    return req;
-  }
 }
+
+export const RefreshJwtAuthGuard = generateJwtAuthGuard(`jwt-${EJwtTokenType.REFRESH}`);
