@@ -42,7 +42,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
     const REFRESH_HEADER = configService.get("REFRESH_HEADER");
 
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([(request) => request?.cookies?.[REFRESH_HEADER]]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: JWT_SECRET,
       passReqToCallback: true,

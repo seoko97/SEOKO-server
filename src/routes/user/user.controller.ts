@@ -19,6 +19,8 @@ export class UserController {
 
   @Get()
   async getUser(@User() _user: TTokenUser) {
-    return this.userService.getById(_user._id);
+    const { username } = await this.userService.getById(_user._id);
+
+    return { username };
   }
 }
