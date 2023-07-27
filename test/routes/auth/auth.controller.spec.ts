@@ -89,19 +89,27 @@ describe("AuthController", () => {
   describe("토큰 재발급", () => {
     let authServiceSigninSpy: jest.SpyInstance;
     let authServiceRegisterTokenInCookieSpy: jest.SpyInstance;
+    let authServiceVerifyRefreshTokenSpy: jest.SpyInstance;
+    let userServiceGetById: jest.SpyInstance;
 
     beforeEach(() => {
       authServiceSigninSpy = jest.spyOn(authService, "signin");
       authServiceRegisterTokenInCookieSpy = jest.spyOn(authService, "registerTokenInCookie");
+      authServiceVerifyRefreshTokenSpy = jest.spyOn(authService, "verifyRefreshToken");
+      userServiceGetById = jest.spyOn(userService, "getById");
     });
 
     it("성공", async () => {
       authServiceSigninSpy.mockReturnValueOnce([TOKEN_STUB, TOKEN_STUB]);
+      authServiceVerifyRefreshTokenSpy.mockReturnValueOnce(true);
+      userServiceGetById.mockResolvedValueOnce(USER_STUB_NON_PASSWORD);
 
       await controller.refresh(TOKEN_USER_STUB, RESPONSE_MOCK);
 
       expect(authServiceSigninSpy).toBeCalledTimes(1);
       expect(authServiceSigninSpy).toBeCalledWith(TOKEN_USER_STUB);
+      expect(authServiceVerifyRefreshTokenSpy).toBeCalledTimes(1);
+      expect(authServiceVerifyRefreshTokenSpy).toBeCalledWith(USER_STUB_NON_PASSWORD.refreshToken);
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledTimes(1);
       expect(authServiceRegisterTokenInCookieSpy).toBeCalledWith({
         type: EJwtTokenType.ACCESS,

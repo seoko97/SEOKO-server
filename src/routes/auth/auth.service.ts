@@ -31,7 +31,9 @@ export class AuthService {
   // 서버에 저장된 유저 토큰이 유효한 토큰인지 확인
   async verifyRefreshToken(refreshToken: string) {
     try {
-      const isVerify = await this.jwtService.verify(refreshToken);
+      const options = { secret: this.authConstantProvider.JWT_SECRET_KEY };
+
+      const isVerify = await this.jwtService.verify(refreshToken, options);
 
       if (!Boolean(isVerify)) throw new UnauthorizedException();
 
@@ -43,7 +45,9 @@ export class AuthService {
 
   // 입력받은 데이터를 통해 토큰을 발급
   signature(_id: string, options: JwtSignOptions) {
-    return this.jwtService.sign({ id: _id }, options);
+    options.secret = this.authConstantProvider.JWT_SECRET_KEY;
+
+    return this.jwtService.sign({ _id }, options);
   }
 
   // response header에 access token과 refresh token을 등록

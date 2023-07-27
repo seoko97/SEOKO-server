@@ -6,15 +6,10 @@ import { UserRepository } from "@/routes/user/user.repository";
 import { User, UserSchema } from "@/routes/user/user.schema";
 import { UserService } from "@/routes/user/user.service";
 
-const USER_MODULE_IMPORTS = [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])];
-
-const USER_MODULE_EXPORTS = [UserService];
-
-const USER_MODULE_PROVIDERS = [UserController, UserService, UserRepository];
-
 @Module({
-  imports: USER_MODULE_IMPORTS,
-  exports: USER_MODULE_EXPORTS,
-  providers: USER_MODULE_PROVIDERS,
+  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+  controllers: [UserController],
+  exports: [UserService],
+  providers: [UserController, UserService, UserRepository],
 })
 export class UserModule {}

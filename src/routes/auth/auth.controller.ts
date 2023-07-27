@@ -3,7 +3,7 @@ import { Response } from "express";
 import { Controller, Post, Res, UseGuards } from "@nestjs/common";
 
 import { Public, User } from "@/common/decorators";
-import { LocalAuthGuard } from "@/common/guards";
+import { LocalAuthGuard, RefreshJwtAuthGuard } from "@/common/guards";
 import { AuthService } from "@/routes/auth/auth.service";
 import { SigninDTO } from "@/routes/auth/dto/signin.dto";
 import { UserService } from "@/routes/user/user.service";
@@ -23,6 +23,8 @@ export class AuthController {
     const user = await this.userService.getById(_user._id);
 
     const [accessToken, refreshToken] = await this.authService.signin(user);
+
+    await this.userService.updateRefreshToken(user._id, refreshToken);
 
     this.authService.registerTokenInCookie({
       type: EJwtTokenType.ACCESS,
@@ -52,9 +54,13 @@ export class AuthController {
 
   // AuthGuard를 통해 검증된 User 정보를 가져옴
   // 검증된 User 정보를 통해 access token 재발급
+  @Public()
+  @UseGuards(RefreshJwtAuthGuard)
   @Post("refresh")
   async refresh(@User() _user: TTokenUser, @Res({ passthrough: true }) res: Response) {
-    await this.authService.verifyRefreshToken(_user._id);
+    const user = await this.userService.getById(_user._id);
+
+    await this.authService.verifyRefreshToken(user.refreshToken);
 
     const [accessToken] = await this.authService.signin(_user);
 
