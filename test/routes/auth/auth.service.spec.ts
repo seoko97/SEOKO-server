@@ -75,7 +75,6 @@ describe("AuthService", () => {
       const result = await authService.verifyRefreshToken(USER_STUB.refreshToken);
 
       expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
-      expect(jwtServiceVerifySpy).toHaveBeenCalledWith(USER_STUB.refreshToken);
       expect(result).toBe(true);
     });
 

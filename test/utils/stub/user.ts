@@ -1,3 +1,5 @@
+import { TOKEN_STUB } from "test/utils/stub/auth";
+
 const TOKEN_USER_STUB = {
   _id: "id",
 };
@@ -11,7 +13,7 @@ const USER_STUB_NON_PASSWORD = {
   ...TOKEN_USER_STUB,
   userId: "test",
   username: "test",
-  refreshToken: null,
+  refreshToken: TOKEN_STUB,
   nid: 1,
 };
 

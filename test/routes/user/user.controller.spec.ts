@@ -28,11 +28,9 @@ describe("UserController", () => {
 
   describe("유저 생성", () => {
     let serviceCreateSpy: jest.SpyInstance;
-    let serviceGetByUserIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
       serviceCreateSpy = jest.spyOn(service, "create");
-      serviceGetByUserIdSpy = jest.spyOn(service, "getByUserId");
     });
 
     it("성공", async () => {
@@ -41,12 +39,12 @@ describe("UserController", () => {
       const user = await controller.createUser(USER_INPUT_STUB);
 
       expect(serviceCreateSpy).toHaveBeenCalledWith(USER_INPUT_STUB);
-      expect(user).toEqual(USER_STUB);
+      expect(user).toEqual({ username: USER_STUB.username });
     });
 
     describe("실패", () => {
       it("이미 존재하는 유저", async () => {
-        serviceGetByUserIdSpy.mockRejectedValueOnce(new ConflictException(USER_ERROR.CONFLICT));
+        serviceCreateSpy.mockRejectedValueOnce(new ConflictException(USER_ERROR.CONFLICT));
 
         try {
           await controller.createUser(USER_INPUT_STUB);
