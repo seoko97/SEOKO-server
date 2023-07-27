@@ -4,7 +4,7 @@ import { Reflector } from "@nestjs/core";
 import { AuthGuard, IAuthGuard } from "@nestjs/passport";
 
 import { EJwtTokenType } from "@/types";
-import { IS_PUBLIC_KEY } from "@/utils/constants";
+import { AUTH_ERROR, IS_PUBLIC_KEY } from "@/utils/constants";
 
 const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
   @Injectable()
@@ -23,11 +23,11 @@ const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
       if (err || !user) {
         switch (info?.message) {
           case "No auth token":
-            throw new UnauthorizedException("유저를 인증할 수 없습니다.");
+            throw new UnauthorizedException(AUTH_ERROR.NO_SIGN);
           case "jwt expired":
-            throw new UnauthorizedException("인증 시간이 만료되었습니다.");
+            throw new UnauthorizedException(AUTH_ERROR.EXPIRED_TOKEN);
           case "invalid token":
-            throw new UnauthorizedException("유효하지 않은 정보입니다.");
+            throw new UnauthorizedException(AUTH_ERROR.INVALID_TOKEN);
           default:
             throw err || new UnauthorizedException(info.message);
         }

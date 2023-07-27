@@ -8,7 +8,7 @@ import { TOKEN_STUB, TOKEN_USER_STUB, USER_STUB } from "test/utils/stub";
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
 import { AuthService } from "@/routes/auth/auth.service";
 import { EJwtTokenType } from "@/types";
-import { USER_ERROR } from "@/utils/constants";
+import { AUTH_ERROR } from "@/utils/constants";
 
 jest.mock("@/routes/user/user.service");
 jest.mock("@/common/providers/auth-constant.provider");
@@ -85,7 +85,7 @@ describe("AuthService", () => {
         } catch (e) {
           expect(e.status).toBe(401);
           expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
-          expect(e.message).toBe(USER_ERROR.UNAUTHORIZED);
+          expect(e.message).toBe(AUTH_ERROR.UNAUTHORIZED);
         }
       });
 
@@ -97,7 +97,7 @@ describe("AuthService", () => {
         } catch (e) {
           expect(e.status).toBe(401);
           expect(jwtServiceVerifySpy).toHaveBeenCalledTimes(1);
-          expect(e.message).toBe(USER_ERROR.UNAUTHORIZED);
+          expect(e.message).toBe(AUTH_ERROR.UNAUTHORIZED);
         }
       });
     });
