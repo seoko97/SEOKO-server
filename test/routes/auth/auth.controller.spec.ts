@@ -1,3 +1,4 @@
+import { ConfigService } from "@nestjs/config";
 import { TestingModule } from "@nestjs/testing";
 
 import { RESPONSE_MOCK } from "test/utils/mock";
@@ -25,7 +26,7 @@ describe("AuthController", () => {
   beforeEach(async () => {
     const module: TestingModule = await createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService, UserService],
+      providers: [AuthService, UserService, ConfigService],
     });
 
     controller = module.get<AuthController>(AuthController);

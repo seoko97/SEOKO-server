@@ -88,7 +88,7 @@ describe("UserController", () => {
       const user = await controller.getUser(TOKEN_USER);
 
       expect(serviceGetByIdSpy).toHaveBeenCalledWith(USER_STUB._id);
-      expect(user).toEqual(USER_STUB_NON_PASSWORD);
+      expect(user).toEqual({ username: USER_STUB.username });
     });
 
     describe("실패", () => {

@@ -5,7 +5,7 @@ import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
 import { EJwtTokenType, IRegisterTokenInCookieArgs, TTokenUser } from "@/types";
-import { USER_ERROR } from "@/utils/constants";
+import { AUTH_ERROR } from "@/utils/constants";
 
 @Injectable()
 export class AuthService {
@@ -39,7 +39,7 @@ export class AuthService {
 
       return true;
     } catch (e) {
-      throw new UnauthorizedException(USER_ERROR.UNAUTHORIZED);
+      throw new UnauthorizedException(AUTH_ERROR.UNAUTHORIZED);
     }
   }
 
