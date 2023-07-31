@@ -12,7 +12,7 @@ export type SeriesModel = Model<SeriesDocument>;
 @Schema()
 export class Series extends BaseSchema {
   @IsString()
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name!: string;
 
   @IsString()

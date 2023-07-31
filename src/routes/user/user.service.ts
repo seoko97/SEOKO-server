@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 
 import { CreateUserDTO } from "@/routes/user/dto/create-user.dto";
 import { UserRepository } from "@/routes/user/user.repository";
@@ -11,7 +11,9 @@ export class UserService {
   async create(createUserDto: CreateUserDTO) {
     const user = await this.userRepository.getByUserId(createUserDto.userId);
 
-    if (user) throw new ConflictException(USER_ERROR.CONFLICT);
+    if (user) {
+      throw new BadRequestException(USER_ERROR.ALREADY_EXISTS);
+    }
 
     return this.userRepository.create(createUserDto);
   }

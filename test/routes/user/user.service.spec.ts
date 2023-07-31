@@ -1,9 +1,9 @@
-import { ConflictException } from "@nestjs/common";
+import { BadRequestException } from "@nestjs/common";
 import { TestingModule } from "@nestjs/testing";
 
 import { MockUserRepository } from "test/utils/mock/user";
 import createTestingModule from "test/utils/mongo/createTestModule";
-import { USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
+import { USER_INPUT_STUB, USER_STUB, USER_STUB_NON_PASSWORD } from "test/utils/stub";
 
 import { UserRepository } from "@/routes/user/user.repository";
 import { UserService } from "@/routes/user/user.service";
@@ -40,19 +40,24 @@ describe("UserService", () => {
     it("성공", async () => {
       repositoryGetByUserIdSpy.mockImplementationOnce(() => null);
 
-      const user = await service.create(USER_STUB);
+      const user = await service.create(USER_INPUT_STUB);
 
       expect(user).toEqual(USER_STUB);
     });
 
     describe("실패", () => {
       it("이미 존재하는 유저", async () => {
+        repositoryGetByUserIdSpy.mockResolvedValueOnce(USER_STUB);
+
         try {
           await service.create(USER_STUB);
         } catch (e) {
-          expect(e.status).toBe(409);
-          expect(e.message).toBe(USER_ERROR.CONFLICT);
-          expect(e).toBeInstanceOf(ConflictException);
+          expect(e.status).toBe(400);
+          expect(e.message).toBe(USER_ERROR.ALREADY_EXISTS);
+          expect(e).toBeInstanceOf(BadRequestException);
+
+          expect(repositoryGetByUserIdSpy).toBeCalledTimes(1);
+          expect(repositoryGetByUserIdSpy).toBeCalledWith(USER_INPUT_STUB.userId);
         }
       });
     });

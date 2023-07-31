@@ -44,13 +44,13 @@ describe("UserController", () => {
 
     describe("실패", () => {
       it("이미 존재하는 유저", async () => {
-        serviceCreateSpy.mockRejectedValueOnce(new ConflictException(USER_ERROR.CONFLICT));
+        serviceCreateSpy.mockRejectedValueOnce(new ConflictException(USER_ERROR.ALREADY_EXISTS));
 
         try {
           await controller.createUser(USER_INPUT_STUB);
         } catch (e) {
           expect(e.status).toBe(409);
-          expect(e.message).toBe(USER_ERROR.CONFLICT);
+          expect(e.message).toBe(USER_ERROR.ALREADY_EXISTS);
           expect(e).toBeInstanceOf(ConflictException);
         }
 
