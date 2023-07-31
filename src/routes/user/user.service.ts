@@ -11,7 +11,7 @@ export class UserService {
   async create(createUserDto: CreateUserDTO) {
     const user = await this.userRepository.getByUserId(createUserDto.userId);
 
-    if (user) throw new ConflictException(USER_ERROR.CONFLICT);
+    if (user) throw new ConflictException(USER_ERROR.ALREADY_EXISTS);
 
     return this.userRepository.create(createUserDto);
   }

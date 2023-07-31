@@ -51,7 +51,7 @@ describe("UserService", () => {
           await service.create(USER_STUB);
         } catch (e) {
           expect(e.status).toBe(409);
-          expect(e.message).toBe(USER_ERROR.CONFLICT);
+          expect(e.message).toBe(USER_ERROR.ALREADY_EXISTS);
           expect(e).toBeInstanceOf(ConflictException);
         }
       });
