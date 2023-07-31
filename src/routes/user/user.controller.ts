@@ -5,7 +5,7 @@ import { CreateUserDTO } from "@/routes/user/dto/create-user.dto";
 import { UserService } from "@/routes/user/user.service";
 import { TTokenUser } from "@/types";
 
-@Controller("user")
+@Controller("users")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
