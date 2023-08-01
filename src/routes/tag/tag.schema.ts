@@ -12,7 +12,7 @@ export type TagModel = Model<TagDocument>;
 @Schema()
 export class Tag extends BaseSchema {
   @IsString()
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name!: string;
 
   @Prop({
