@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
 import { UpdateSeriesDto } from "@/routes/series/dto/update-series.dto";
@@ -20,7 +20,7 @@ export class SeriesController {
     return await this.seriesService.getByNumId(Number(numId));
   }
 
-  @Post(":_id")
+  @Patch(":_id")
   async updateSeries(@Param("_id") _id: string, @Body() updateSeriesDto: UpdateSeriesDto) {
     const input = {
       ...updateSeriesDto,
