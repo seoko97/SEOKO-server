@@ -16,6 +16,7 @@ jest.mock("@/routes/series/series.repository");
 
 describe("SeriesService", () => {
   let service: SeriesService;
+  let repository: SeriesRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,6 +24,7 @@ describe("SeriesService", () => {
     }).compile();
 
     service = module.get<SeriesService>(SeriesService);
+    repository = module.get<SeriesRepository>(SeriesRepository);
 
     jest.clearAllMocks();
   });
@@ -36,8 +38,8 @@ describe("SeriesService", () => {
     let repositoryGetByNameSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryCreateSpy = jest.spyOn(SeriesRepository.prototype, "create");
-      repositoryGetByNameSpy = jest.spyOn(SeriesRepository.prototype, "getByName");
+      repositoryCreateSpy = jest.spyOn(repository, "create");
+      repositoryGetByNameSpy = jest.spyOn(repository, "getByName");
     });
 
     it("성공", async () => {
@@ -76,9 +78,9 @@ describe("SeriesService", () => {
     let repositoryGetByIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryUpdateSpy = jest.spyOn(SeriesRepository.prototype, "update");
-      repositoryUpdateToPushPostSpy = jest.spyOn(SeriesRepository.prototype, "updateToPushPost");
-      repositoryGetByIdSpy = jest.spyOn(SeriesRepository.prototype, "getById");
+      repositoryUpdateSpy = jest.spyOn(repository, "update");
+      repositoryUpdateToPushPostSpy = jest.spyOn(repository, "updateToPushPost");
+      repositoryGetByIdSpy = jest.spyOn(repository, "getById");
     });
 
     describe("성공", () => {
@@ -156,8 +158,8 @@ describe("SeriesService", () => {
     let repositoryGetByIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryDeleteSpy = jest.spyOn(SeriesRepository.prototype, "delete");
-      repositoryGetByIdSpy = jest.spyOn(SeriesRepository.prototype, "getById");
+      repositoryDeleteSpy = jest.spyOn(repository, "delete");
+      repositoryGetByIdSpy = jest.spyOn(repository, "getById");
     });
 
     it("성공", async () => {
@@ -195,8 +197,8 @@ describe("SeriesService", () => {
     let repositoryGetByNumIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryGetByAllSpy = jest.spyOn(SeriesRepository.prototype, "getByAll");
-      repositoryGetByNumIdSpy = jest.spyOn(SeriesRepository.prototype, "getByNumId");
+      repositoryGetByAllSpy = jest.spyOn(repository, "getByAll");
+      repositoryGetByNumIdSpy = jest.spyOn(repository, "getByNumId");
     });
 
     describe("성공", () => {
