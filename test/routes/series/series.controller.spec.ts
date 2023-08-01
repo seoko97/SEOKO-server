@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 
-import { SERIES_STUB } from "test/utils/stub/series";
+import { SERIES_STUB } from "test/utils/stub";
 
 import { SeriesController } from "@/routes/series/series.controller";
 import { SeriesService } from "@/routes/series/series.service";
