@@ -1,4 +1,5 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
 
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { Tag, TagDocument, TagModel } from "@/routes/tag/tag.schema";
@@ -7,7 +8,7 @@ import { GET_TAGS_OPTIONS } from "@/utils/constants/tag";
 @Injectable()
 export class TagRepository {
   constructor(
-    @Inject(Tag.name) private readonly tagModel: TagModel,
+    @InjectModel(Tag.name) private readonly tagModel: TagModel,
     private readonly sequenceRepository: SequenceRepository,
   ) {}
 
@@ -47,9 +48,7 @@ export class TagRepository {
   }
 
   async getByName(name: string) {
-    const tag = await this.tagModel.findOne({ name }).populate("posts");
-
-    return tag[0];
+    return this.tagModel.findOne({ name }).populate("posts");
   }
 
   async getAll() {
