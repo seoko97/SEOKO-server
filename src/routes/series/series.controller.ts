@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
 import { UpdateSeriesDto } from "@/routes/series/dto/update-series.dto";
@@ -30,7 +30,7 @@ export class SeriesController {
     return await this.seriesService.update(input);
   }
 
-  @Post("_id")
+  @Delete("_id")
   async deleteSeries(@Param("_id") _id: string) {
     return await this.seriesService.delete(_id);
   }
