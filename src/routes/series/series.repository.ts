@@ -48,4 +48,14 @@ export class SeriesRepository {
   async getByName(name: string) {
     return this.seriesModel.findOne({ name });
   }
+
+  async findOrCreate(name: string) {
+    const series = await this.getByName(name);
+
+    if (series) {
+      return series;
+    }
+
+    return this.create({ name });
+  }
 }

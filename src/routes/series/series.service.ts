@@ -29,12 +29,12 @@ export class SeriesService {
     return this.seriesRepository.getById(updateSeriesDto._id);
   }
 
-  async updateToPushPost(seriesId: string, postId: string) {
-    await this.checkSeriesById(seriesId);
+  async updateToPushPost(name: string, postId: string) {
+    const series = await this.seriesRepository.findOrCreate(name);
 
-    await this.seriesRepository.updateToPushPost(seriesId, postId);
+    await this.seriesRepository.updateToPushPost(series._id, postId);
 
-    return this.seriesRepository.getById(seriesId);
+    return this.seriesRepository.getById(name);
   }
 
   async delete(_id: string) {
