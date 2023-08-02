@@ -113,35 +113,56 @@ describe("SeriesService", () => {
     });
   });
 
-  describe("시리즈 수정", () => {
+  describe("시리즈 수정 - 게시글 추가", () => {
     let repositoryFindOrCreateSpy: jest.SpyInstance;
-    let repositoryUpdateToPushPostSpy: jest.SpyInstance;
-    let repositoryGetByIdSpy: jest.SpyInstance;
+    let repositoryPushPostId: jest.SpyInstance;
 
     beforeEach(() => {
       repositoryFindOrCreateSpy = jest.spyOn(repository, "findOrCreate");
-      repositoryUpdateToPushPostSpy = jest.spyOn(repository, "updateToPushPost");
-      repositoryGetByIdSpy = jest.spyOn(repository, "getById");
+      repositoryPushPostId = jest.spyOn(repository, "pushPostId");
     });
 
     it("성공", async () => {
       repositoryFindOrCreateSpy.mockResolvedValueOnce(SERIES_STUB);
-      repositoryGetByIdSpy.mockResolvedValueOnce(SERIES_STUB);
-      repositoryUpdateToPushPostSpy.mockResolvedValueOnce(SERIES_STUB);
+      repositoryPushPostId.mockResolvedValueOnce(undefined);
 
       const seriesId = SERIES_STUB._id;
       const seriesName = SERIES_STUB.name;
       const postId = SERIES_STUB.posts[0]._id;
 
-      const series = await service.updateToPushPost(seriesName, postId);
+      const series = await service.pushPostId(seriesName, postId);
 
       expect(series).toEqual(SERIES_STUB);
-      expect(repositoryGetByIdSpy).toBeCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(seriesId);
-      expect(repositoryUpdateToPushPostSpy).toBeCalledTimes(1);
-      expect(repositoryUpdateToPushPostSpy).toBeCalledWith(seriesId, postId);
+      expect(repositoryPushPostId).toBeCalledTimes(1);
+      expect(repositoryPushPostId).toBeCalledWith(seriesId, postId);
       expect(repositoryFindOrCreateSpy).toBeCalledTimes(1);
       expect(repositoryFindOrCreateSpy).toBeCalledWith(seriesName);
+    });
+  });
+
+  describe("시리즈 수정 - 게시글 제거", () => {
+    let repositoryGetByNameSpy: jest.SpyInstance;
+    let repositoryPullPostIdSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      repositoryGetByNameSpy = jest.spyOn(repository, "getByName");
+      repositoryPullPostIdSpy = jest.spyOn(repository, "pullPostId");
+    });
+
+    it("성공", async () => {
+      repositoryGetByNameSpy.mockResolvedValueOnce(SERIES_STUB);
+      repositoryPullPostIdSpy.mockResolvedValueOnce(undefined);
+
+      const seriesId = SERIES_STUB._id;
+      const seriesName = SERIES_STUB.name;
+      const postId = SERIES_STUB.posts[0]._id;
+
+      await service.pullPostId(seriesName, postId);
+
+      expect(repositoryPullPostIdSpy).toBeCalledTimes(1);
+      expect(repositoryPullPostIdSpy).toBeCalledWith(seriesId, postId);
+      expect(repositoryGetByNameSpy).toBeCalledTimes(1);
+      expect(repositoryGetByNameSpy).toBeCalledWith(seriesName);
     });
   });
 

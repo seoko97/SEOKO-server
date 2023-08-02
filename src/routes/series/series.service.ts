@@ -29,12 +29,22 @@ export class SeriesService {
     return this.seriesRepository.getById(updateSeriesDto._id);
   }
 
-  async updateToPushPost(name: string, postId: string) {
+  async pushPostId(name: string, postId: string) {
     const series = await this.seriesRepository.findOrCreate(name);
 
-    await this.seriesRepository.updateToPushPost(series._id, postId);
+    await this.seriesRepository.pushPostId(series._id, postId);
 
-    return this.seriesRepository.getById(name);
+    return series;
+  }
+
+  async pullPostId(name: string, postId: string) {
+    const series = await this.seriesRepository.getByName(name);
+
+    if (!series) {
+      throw new BadRequestException(SERIES_ERROR.NOT_FOUND);
+    }
+
+    await this.seriesRepository.pullPostId(series._id, postId);
   }
 
   async delete(_id: string) {

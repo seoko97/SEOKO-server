@@ -25,8 +25,12 @@ export class SeriesRepository {
     return this.seriesModel.updateOne({ _id }, rest);
   }
 
-  async updateToPushPost(seriesId: string, postId: string) {
+  async pushPostId(seriesId: string, postId: string) {
     return this.seriesModel.updateOne({ _id: seriesId }, { $push: { posts: postId } });
+  }
+
+  async pullPostId(seriesId: string, postId: string) {
+    return this.seriesModel.updateOne({ _id: seriesId }, { $pull: { posts: postId } });
   }
 
   async delete(_id: string) {
