@@ -16,12 +16,7 @@ export class SeriesRepository {
   async create(createSeriesDto: CreateSeriesDto) {
     const nid = await this.sequenceRepository.getNextSequence("series");
 
-    const input = {
-      nid,
-      ...createSeriesDto,
-    };
-
-    return this.seriesModel.create(input);
+    return this.seriesModel.create({ nid, ...createSeriesDto });
   }
 
   async update(updateSeriesDto: UpdateSeriesDtoWithId) {
