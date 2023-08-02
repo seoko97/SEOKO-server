@@ -16,8 +16,8 @@ export class Series extends BaseSchema {
   name!: string;
 
   @IsString()
-  @Prop({ required: true })
-  thumbnail!: string;
+  @Prop({ required: false, default: null })
+  thumbnail?: string;
 
   @Prop({
     ref: "Post",
