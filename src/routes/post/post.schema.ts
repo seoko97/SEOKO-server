@@ -27,6 +27,20 @@ export class Post extends BaseSchema {
   series?: Types.ObjectId;
 
   @Prop({
+    type: [{ type: String }],
+    required: false,
+    default: [],
+  })
+  likes?: string[];
+
+  @Prop({
+    type: [{ type: String }],
+    required: false,
+    default: [],
+  })
+  views?: string[];
+
+  @Prop({
     type: [{ type: Types.ObjectId }],
     ref: "Tag",
     required: false,
