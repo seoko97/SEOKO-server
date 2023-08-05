@@ -8,7 +8,7 @@ import { AUTH_ERROR, IS_PUBLIC_KEY } from "@/utils/constants";
 
 const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
   @Injectable()
-  class JwtAuthGuard extends AuthGuard(key) {
+  class JwtAuthGuard extends AuthGuard(`jwt-${key}`) {
     HEADER: string;
 
     constructor(private readonly configService: ConfigService) {
@@ -53,7 +53,7 @@ const generateJwtAuthGuard = (key: string): Type<IAuthGuard> => {
 };
 
 @Injectable()
-export class AccessJwtAuthGuard extends generateJwtAuthGuard(`jwt-${EJwtTokenType.ACCESS}`) {
+export class AccessJwtAuthGuard extends generateJwtAuthGuard(EJwtTokenType.ACCESS) {
   constructor(
     private readonly reflector: Reflector,
     private readonly configService: ConfigService,
@@ -75,4 +75,4 @@ export class AccessJwtAuthGuard extends generateJwtAuthGuard(`jwt-${EJwtTokenTyp
   }
 }
 
-export const RefreshJwtAuthGuard = generateJwtAuthGuard(`jwt-${EJwtTokenType.REFRESH}`);
+export const RefreshJwtAuthGuard = generateJwtAuthGuard(EJwtTokenType.REFRESH);

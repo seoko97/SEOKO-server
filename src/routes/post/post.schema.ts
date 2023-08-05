@@ -4,6 +4,7 @@ import { IsString } from "class-validator";
 import { Document, Model, Types } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
+import { Series } from "@/routes/series/series.schema";
 import { Tag } from "@/routes/tag/tag.schema";
 
 export type PostDocument = Post & Document;
@@ -23,12 +24,31 @@ export class Post extends BaseSchema {
   @Prop({ required: true })
   thumbnail!: string;
 
-  @Prop({ type: Types.ObjectId, ref: "Series", required: false })
-  series?: Types.ObjectId;
+  @Prop({
+    type: Types.ObjectId,
+    ref: Series.name,
+    required: false,
+    default: null,
+  })
+  series?: Series;
+
+  @Prop({
+    type: [{ type: String }],
+    required: false,
+    default: [],
+  })
+  likes?: string[];
+
+  @Prop({
+    type: [{ type: String }],
+    required: false,
+    default: [],
+  })
+  views?: string[];
 
   @Prop({
     type: [{ type: Types.ObjectId }],
-    ref: "Tag",
+    ref: Tag.name,
     required: false,
     default: [],
   })

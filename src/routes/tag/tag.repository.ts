@@ -19,7 +19,7 @@ export class TagRepository {
     );
   }
 
-  async pullPostIdInTagNames(tagNames: string[], postId: string) {
+  async pullPostIdInTags(tagNames: string[], postId: string) {
     await this.tagModel
       .updateMany({ name: { $in: tagNames } }, { $pull: { posts: postId } })
       .exec();

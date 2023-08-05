@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
+import { PostService } from "@/routes/post/post.service";
 import { CreateSeriesDto } from "@/routes/series/dto/create-series.dto";
 import { UpdateSeriesDtoWithId } from "@/routes/series/dto/update-series.dto";
 import { SeriesRepository } from "@/routes/series/series.repository";
@@ -7,7 +8,10 @@ import { SERIES_ERROR } from "@/utils/constants";
 
 @Injectable()
 export class SeriesService {
-  constructor(private readonly seriesRepository: SeriesRepository) {}
+  constructor(
+    private readonly seriesRepository: SeriesRepository,
+    private readonly postService: PostService,
+  ) {}
 
   async create(createSeriesDto: CreateSeriesDto) {
     const { name } = createSeriesDto;
@@ -29,17 +33,28 @@ export class SeriesService {
     return this.seriesRepository.getById(updateSeriesDto._id);
   }
 
-  async updateToPushPost(seriesId: string, postId: string) {
-    await this.checkSeriesById(seriesId);
+  async pushPostIdInSeries(name: string, postId: string) {
+    const series = await this.seriesRepository.findOrCreate(name);
 
-    await this.seriesRepository.updateToPushPost(seriesId, postId);
+    await this.seriesRepository.pushPostIdInSeries(series._id, postId);
 
-    return this.seriesRepository.getById(seriesId);
+    return series;
+  }
+
+  async pullPostIdInSeries(name: string, postId: string) {
+    const series = await this.seriesRepository.getByName(name);
+
+    if (!series) {
+      throw new BadRequestException(SERIES_ERROR.NOT_FOUND);
+    }
+
+    await this.seriesRepository.pullPostIdInSeries(series._id, postId);
   }
 
   async delete(_id: string) {
     await this.checkSeriesById(_id);
 
+    await this.postService.deleteSeriesInPosts(_id);
     await this.seriesRepository.delete(_id);
 
     return true;

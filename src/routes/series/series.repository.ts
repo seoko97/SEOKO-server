@@ -16,12 +16,7 @@ export class SeriesRepository {
   async create(createSeriesDto: CreateSeriesDto) {
     const nid = await this.sequenceRepository.getNextSequence("series");
 
-    const input = {
-      nid,
-      ...createSeriesDto,
-    };
-
-    return this.seriesModel.create(input);
+    return this.seriesModel.create({ nid, ...createSeriesDto });
   }
 
   async update(updateSeriesDto: UpdateSeriesDtoWithId) {
@@ -30,8 +25,12 @@ export class SeriesRepository {
     return this.seriesModel.updateOne({ _id }, rest);
   }
 
-  async updateToPushPost(seriesId: string, postId: string) {
+  async pushPostIdInSeries(seriesId: string, postId: string) {
     return this.seriesModel.updateOne({ _id: seriesId }, { $push: { posts: postId } });
+  }
+
+  async pullPostIdInSeries(seriesId: string, postId: string) {
+    return this.seriesModel.updateOne({ _id: seriesId }, { $pull: { posts: postId } });
   }
 
   async delete(_id: string) {
@@ -52,5 +51,15 @@ export class SeriesRepository {
 
   async getByName(name: string) {
     return this.seriesModel.findOne({ name });
+  }
+
+  async findOrCreate(name: string) {
+    const series = await this.getByName(name);
+
+    if (series) {
+      return series;
+    }
+
+    return this.create({ name });
   }
 }

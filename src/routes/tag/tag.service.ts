@@ -14,7 +14,7 @@ export class TagService {
     return this.tagRepository.getByName(name);
   }
 
-  async pushPostIdInTagNames(tagNames: string[], postId: string) {
+  async pushPostIdInTags(tagNames: string[], postId: string) {
     const tags = await Promise.all(
       tagNames.map((tagName) => this.tagRepository.findOrCreate(tagName)),
     );
@@ -24,8 +24,8 @@ export class TagService {
     return tags;
   }
 
-  async pullPostIdInTagNames(tagNames: string[], postId: string) {
-    await this.tagRepository.pullPostIdInTagNames(tagNames, postId);
+  async pullPostIdInTags(tagNames: string[], postId: string) {
+    await this.tagRepository.pullPostIdInTags(tagNames, postId);
 
     return this.tagRepository.getAllByTagNames(tagNames);
   }
