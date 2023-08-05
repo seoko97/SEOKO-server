@@ -119,7 +119,7 @@ describe("SeriesService", () => {
 
     beforeEach(() => {
       repositoryFindOrCreateSpy = jest.spyOn(repository, "findOrCreate");
-      repositoryPushPostId = jest.spyOn(repository, "pushPostId");
+      repositoryPushPostId = jest.spyOn(repository, "pushPostIdInSeries");
     });
 
     it("성공", async () => {
@@ -130,7 +130,7 @@ describe("SeriesService", () => {
       const seriesName = SERIES_STUB.name;
       const postId = SERIES_STUB.posts[0]._id;
 
-      const series = await service.pushPostId(seriesName, postId);
+      const series = await service.pushPostIdInSeries(seriesName, postId);
 
       expect(series).toEqual(SERIES_STUB);
       expect(repositoryPushPostId).toBeCalledTimes(1);
@@ -146,7 +146,7 @@ describe("SeriesService", () => {
 
     beforeEach(() => {
       repositoryGetByNameSpy = jest.spyOn(repository, "getByName");
-      repositoryPullPostIdSpy = jest.spyOn(repository, "pullPostId");
+      repositoryPullPostIdSpy = jest.spyOn(repository, "pullPostIdInSeries");
     });
 
     it("성공", async () => {
@@ -157,7 +157,7 @@ describe("SeriesService", () => {
       const seriesName = SERIES_STUB.name;
       const postId = SERIES_STUB.posts[0]._id;
 
-      await service.pullPostId(seriesName, postId);
+      await service.pullPostIdInSeries(seriesName, postId);
 
       expect(repositoryPullPostIdSpy).toBeCalledTimes(1);
       expect(repositoryPullPostIdSpy).toBeCalledWith(seriesId, postId);

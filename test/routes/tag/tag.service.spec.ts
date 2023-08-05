@@ -61,7 +61,7 @@ describe("TagService", () => {
       repositoryFindOrCreateSpy.mockResolvedValueOnce(TAG_STUB);
       repositoryAddPostIdInTagsSpy.mockResolvedValueOnce(TAG_STUB);
 
-      const tags = await service.pushPostIdInTagNames([TAG_STUB.name], TAG_STUB.posts[0]._id);
+      const tags = await service.pushPostIdInTags([TAG_STUB.name], TAG_STUB.posts[0]._id);
 
       expect(tags).toEqual([TAG_STUB]);
 
@@ -77,24 +77,24 @@ describe("TagService", () => {
 
   describe("태그에 게시글 삭제", () => {
     it("태그 이름 배열을 받아 해당 이름과 일치하는 태그를 찾아 게시글 아이디를 삭제한다", async () => {
-      const repositoryPullPostIdInTagNamesSpy: jest.SpyInstance = jest.spyOn(
+      const repositorypullPostIdInTagsSpy: jest.SpyInstance = jest.spyOn(
         repository,
-        "pullPostIdInTagNames",
+        "pullPostIdInTags",
       );
       const repositoryGetAllByTagNamesSpy: jest.SpyInstance = jest.spyOn(
         repository,
         "getAllByTagNames",
       );
-      repositoryPullPostIdInTagNamesSpy.mockResolvedValueOnce(true);
+      repositorypullPostIdInTagsSpy.mockResolvedValueOnce(true);
       repositoryGetAllByTagNamesSpy.mockResolvedValueOnce([TAG_STUB]);
 
-      const tags = await service.pullPostIdInTagNames([TAG_STUB.name], TAG_STUB.posts[0]._id);
+      const tags = await service.pullPostIdInTags([TAG_STUB.name], TAG_STUB.posts[0]._id);
 
       expect(tags).toEqual([TAG_STUB]);
 
-      expect(repositoryPullPostIdInTagNamesSpy).toHaveBeenCalled();
-      expect(repositoryPullPostIdInTagNamesSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryPullPostIdInTagNamesSpy).toHaveBeenCalledWith(
+      expect(repositorypullPostIdInTagsSpy).toHaveBeenCalled();
+      expect(repositorypullPostIdInTagsSpy).toHaveBeenCalledTimes(1);
+      expect(repositorypullPostIdInTagsSpy).toHaveBeenCalledWith(
         [TAG_STUB.name],
         TAG_STUB.posts[0]._id,
       );
