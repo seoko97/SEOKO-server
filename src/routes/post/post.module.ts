@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 
 import { SequenceModule } from "@/common/sequence/sequence.module";
@@ -13,8 +13,8 @@ import { PostService } from "./post.service";
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    forwardRef(() => SeriesModule),
     TagModule,
-    SeriesModule,
     SequenceModule,
   ],
   providers: [PostService, PostRepository],
