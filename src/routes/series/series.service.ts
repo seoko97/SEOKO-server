@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
+import { PostService } from "@/routes/post/post.service";
 import { CreateSeriesDto } from "@/routes/series/dto/create-series.dto";
 import { UpdateSeriesDtoWithId } from "@/routes/series/dto/update-series.dto";
 import { SeriesRepository } from "@/routes/series/series.repository";
@@ -7,7 +8,10 @@ import { SERIES_ERROR } from "@/utils/constants";
 
 @Injectable()
 export class SeriesService {
-  constructor(private readonly seriesRepository: SeriesRepository) {}
+  constructor(
+    private readonly seriesRepository: SeriesRepository,
+    private readonly postService: PostService,
+  ) {}
 
   async create(createSeriesDto: CreateSeriesDto) {
     const { name } = createSeriesDto;
@@ -50,6 +54,7 @@ export class SeriesService {
   async delete(_id: string) {
     await this.checkSeriesById(_id);
 
+    await this.postService.deleteSeriesInPosts(_id);
     await this.seriesRepository.delete(_id);
 
     return true;
