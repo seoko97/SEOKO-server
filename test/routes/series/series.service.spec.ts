@@ -8,22 +8,26 @@ import {
   SERIES_UPDATE_INPUT_STUB,
 } from "test/utils/stub/series";
 
+import { PostService } from "@/routes/post/post.service";
 import { SeriesRepository } from "@/routes/series/series.repository";
 import { SeriesService } from "@/routes/series/series.service";
 import { SERIES_ERROR } from "@/utils/constants";
 
+jest.mock("@/routes/post/post.service");
 jest.mock("@/routes/series/series.repository");
 
 describe("SeriesService", () => {
   let service: SeriesService;
+  let postService: PostService;
   let repository: SeriesRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SeriesService, SeriesRepository],
+      providers: [SeriesService, PostService, SeriesRepository],
     }).compile();
 
     service = module.get<SeriesService>(SeriesService);
+    postService = module.get<PostService>(PostService);
     repository = module.get<SeriesRepository>(SeriesRepository);
 
     jest.clearAllMocks();
@@ -167,15 +171,18 @@ describe("SeriesService", () => {
   });
 
   describe("시리즈 삭제", () => {
+    let postServiceDeleteSeriesSpy: jest.SpyInstance;
     let repositoryDeleteSpy: jest.SpyInstance;
     let repositoryGetByIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
+      postServiceDeleteSeriesSpy = jest.spyOn(postService, "deleteSeries");
       repositoryDeleteSpy = jest.spyOn(repository, "delete");
       repositoryGetByIdSpy = jest.spyOn(repository, "getById");
     });
 
     it("성공", async () => {
+      postServiceDeleteSeriesSpy.mockResolvedValueOnce(undefined);
       repositoryGetByIdSpy.mockResolvedValueOnce(SERIES_STUB);
       repositoryDeleteSpy.mockResolvedValueOnce(SERIES_STUB);
 
