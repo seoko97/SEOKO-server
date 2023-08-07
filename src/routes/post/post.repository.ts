@@ -4,6 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { FilterQuery } from "mongoose";
 
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
+import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
 import { Post, PostDocument, PostModel } from "@/routes/post/post.schema";
 import { TagDocument } from "@/routes/tag/tag.schema";
@@ -19,8 +20,8 @@ export class PostRepository {
     return post.save();
   }
 
-  async create(createPostDto: any) {
-    const nid = await this.sequenceRepository.getNextSequence("series");
+  async create(createPostDto: CreatePostDto) {
+    const nid = await this.sequenceRepository.getNextSequence("post");
 
     return this.postModel.create({ nid, ...createPostDto });
   }
@@ -57,6 +58,10 @@ export class PostRepository {
     return this.postModel.updateOne({ _id: postId }, { $push: { views: ip } });
   }
 
+  async isViewed(postId: string, ip: string) {
+    return this.postModel.exists({ _id: postId, views: { $in: ip } });
+  }
+
   async getAll(options: FilterQuery<PostDocument>, limit: number, offset: number) {
     return this.postModel.find(options).populate("tags").skip(offset).limit(limit);
   }
@@ -65,8 +70,27 @@ export class PostRepository {
     return this.postModel.findOne({ _id }).populate("tags").populate("series");
   }
 
-  async getByNumId(nid: number) {
-    return this.postModel.findOne({ nid }).populate("tags").populate("series");
+  async getByNumId(nid: number, ip: string) {
+    return this.postModel
+      .findOne(
+        { nid },
+        {
+          _id: 1,
+          title: 1,
+          content: 1,
+          thumbnail: 1,
+          nid: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          tags: 1,
+          series: 1,
+          likeCount: { $size: "$likes" },
+          isLiked: { $in: [ip, "$likes"] },
+          viewCount: { $size: "$views" },
+        },
+      )
+      .populate("tags")
+      .populate("series");
   }
 
   async getSibling(targetNid: number) {
