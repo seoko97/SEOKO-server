@@ -60,8 +60,8 @@ export class SeriesService {
     return true;
   }
 
-  async getByAll() {
-    return this.seriesRepository.getByAll();
+  async getAll() {
+    return this.seriesRepository.getAll();
   }
 
   async getByNumId(nid: number) {

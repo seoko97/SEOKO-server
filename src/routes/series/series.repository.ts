@@ -37,7 +37,7 @@ export class SeriesRepository {
     return this.seriesModel.deleteOne({ _id });
   }
 
-  async getByAll() {
+  async getAll() {
     return this.seriesModel.find({ postCount: { $gt: 0 } });
   }
 
