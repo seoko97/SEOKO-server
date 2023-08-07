@@ -30,20 +30,20 @@ describe("SeriesController", () => {
   });
 
   describe("모든 시리즈 정보 요청", () => {
-    let serviceGetByAllSpy: jest.SpyInstance;
+    let serviceGetAllSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      serviceGetByAllSpy = jest.spyOn(service, "getByAll");
+      serviceGetAllSpy = jest.spyOn(service, "getAll");
     });
 
     it("성공", async () => {
-      serviceGetByAllSpy.mockResolvedValueOnce([SERIES_STUB]);
+      serviceGetAllSpy.mockResolvedValueOnce([SERIES_STUB]);
 
       const series = await controller.getSeries();
 
       expect(series).toEqual([SERIES_STUB]);
-      expect(serviceGetByAllSpy).toHaveBeenCalled();
-      expect(serviceGetByAllSpy).toHaveBeenCalledTimes(1);
+      expect(serviceGetAllSpy).toHaveBeenCalled();
+      expect(serviceGetAllSpy).toHaveBeenCalledTimes(1);
     });
   });
 
