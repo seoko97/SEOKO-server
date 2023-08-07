@@ -303,18 +303,41 @@ describe("PostService", () => {
   describe("게시글 좋아요", () => {
     const POST = { ...POST_STUB };
 
+    const POST_TO_RESULT = {
+      ...POST,
+      likeCount: 0,
+      viewCount: 0,
+      isLike: false,
+    };
+
+    let postRepositoryGetByIdSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      postRepositoryGetByIdSpy = jest.spyOn(postRepository, "getById");
+    });
+
     it("증가", async () => {
       const postRepositoryIncreaseLikeSpy: jest.SpyInstance = jest.spyOn(
         postRepository,
         "increaseToLikes",
       );
+      const postRepositoryGetByNumIdSpy: jest.SpyInstance = jest.spyOn(
+        postRepository,
+        "getByNumId",
+      );
 
+      postRepositoryGetByNumIdSpy.mockResolvedValueOnce(POST_TO_RESULT);
       postRepositoryIncreaseLikeSpy.mockResolvedValueOnce(undefined);
+      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
 
       await postService.increaseToLikes(POST._id, "ip");
 
       expect(postRepositoryIncreaseLikeSpy).toBeCalledTimes(1);
       expect(postRepositoryIncreaseLikeSpy).toBeCalledWith(POST._id, "ip");
+      expect(postRepositoryGetByNumIdSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetByNumIdSpy).toBeCalledWith(POST.nid, "ip");
+      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
     });
 
     it("감소", async () => {
@@ -324,11 +347,14 @@ describe("PostService", () => {
       );
 
       postRepositoryDecreaseLikeSpy.mockResolvedValueOnce(undefined);
+      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
 
       await postService.decreaseToLikes(POST._id, "ip");
 
       expect(postRepositoryDecreaseLikeSpy).toBeCalledTimes(1);
       expect(postRepositoryDecreaseLikeSpy).toBeCalledWith(POST._id, "ip");
+      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
     });
   });
 
@@ -340,13 +366,17 @@ describe("PostService", () => {
         postRepository,
         "increaseToViews",
       );
+      const postRepositoryGetByIdSpy: jest.SpyInstance = jest.spyOn(postRepository, "getById");
 
       postRepositoryIncreaseViewsSpy.mockResolvedValueOnce(undefined);
+      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
 
       await postService.increaseToViews(POST._id, "ip");
 
       expect(postRepositoryIncreaseViewsSpy).toBeCalledTimes(1);
       expect(postRepositoryIncreaseViewsSpy).toBeCalledWith(POST._id, "ip");
+      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
     });
   });
 
@@ -425,11 +455,11 @@ describe("PostService", () => {
       );
       postRepositoryGetByNumIdSpy.mockResolvedValueOnce(POST);
 
-      const post = await postService.getByNumId(POST.nid);
+      const post = await postService.getByNumId(POST.nid, "ip");
 
       expect(post).toEqual(POST);
       expect(postRepositoryGetByNumIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByNumIdSpy).toBeCalledWith(POST.nid);
+      expect(postRepositoryGetByNumIdSpy).toBeCalledWith(POST.nid, "ip");
     });
 
     it("성공 - Object id로 조회", async () => {
