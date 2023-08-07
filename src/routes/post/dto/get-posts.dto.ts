@@ -1,10 +1,6 @@
-import { applyDecorators } from "@nestjs/common";
+import { IsNumber, IsString } from "class-validator";
 
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
-
-export const IsOptionalCustom = (_decorator: PropertyDecorator) => {
-  return applyDecorators(IsOptional(), IsNotEmpty(), _decorator);
-};
+import { IsOptionalCustom } from "@/common/decorators/is-optional.decorator";
 
 export class GetPostsDto {
   @IsOptionalCustom(IsString())
