@@ -53,6 +53,15 @@ export class Post extends BaseSchema {
     default: [],
   })
   tags?: Tag[];
+
+  @Prop()
+  isLiked?: boolean;
+
+  @Prop()
+  likeCount?: number;
+
+  @Prop()
+  viewCount?: number;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

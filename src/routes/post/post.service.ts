@@ -57,8 +57,6 @@ export class PostService {
     await this.seriesService.pullPostIdInSeries(post.series.name, _id);
     await this.tagService.pullPostIdInTags(tagNames, _id);
     await this.postRepository.delete(_id);
-
-    return true;
   }
 
   async update(updatePostDto: UpdatePostDto) {
@@ -75,8 +73,9 @@ export class PostService {
     const prevSeriesName = post.series?.name ?? null;
 
     try {
-      // 기존에 시리즈가 존재하고 입력받은 시리즈와 다르다면
+      // 기존에 시리즈가 존재하고 입력받은 시리즈와 다르다면 기존 시리즈 제거
       if (prevSeriesName && prevSeriesName !== seriesName) {
+        input.series = null;
         await this.seriesService.pullPostIdInSeries(prevSeriesName, _id);
       }
 
@@ -95,7 +94,6 @@ export class PostService {
       await this.postRepository.pushTags(_id, aTags);
       await this.postRepository.pullTags(_id, dTags);
     } catch (error) {
-      console.log(error.message);
       throw new BadRequestException(error?.massage || POST_ERROR.FAIL_UPDATE);
     }
 
@@ -107,15 +105,31 @@ export class PostService {
   }
 
   async increaseToLikes(postId: string, ip: string) {
+    const { nid } = await this.existPostById(postId);
+
+    const post = await this.postRepository.getByNumId(nid, ip);
+
+    if (post.isLiked) {
+      throw new BadRequestException(POST_ERROR.ALREADY_LIKED);
+    }
+
     return this.postRepository.increaseToLikes(postId, ip);
   }
 
   async decreaseToLikes(postId: string, ip: string) {
+    await this.existPostById(postId);
+
     return this.postRepository.decreaseToLikes(postId, ip);
   }
 
   async increaseToViews(postId: string, ip: string) {
-    return this.postRepository.increaseToViews(postId, ip);
+    await this.existPostById(postId);
+
+    const post = await this.postRepository.isViewed(postId, ip);
+
+    if (post) return;
+
+    await this.postRepository.increaseToViews(postId, ip);
   }
 
   async getAll(getPostsDto: GetPostsDto) {
@@ -126,8 +140,14 @@ export class PostService {
     return this.postRepository.getAll(options, limit, offset);
   }
 
-  async getByNumId(nid: number) {
-    return this.postRepository.getByNumId(nid);
+  async getByNumId(nid: number, ip: string) {
+    const post = await this.postRepository.getByNumId(nid, ip);
+
+    if (!post) {
+      throw new BadRequestException(POST_ERROR.NOT_FOUND);
+    }
+
+    return post;
   }
 
   async getById(_id: string) {
@@ -136,5 +156,15 @@ export class PostService {
 
   async getSibling(targetNid: number) {
     return this.postRepository.getSibling(targetNid);
+  }
+
+  async existPostById(_id: string) {
+    const post = await this.postRepository.getById(_id);
+
+    if (!post) {
+      throw new BadRequestException(POST_ERROR.NOT_FOUND);
+    }
+
+    return post;
   }
 }

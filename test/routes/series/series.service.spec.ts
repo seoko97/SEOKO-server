@@ -176,7 +176,7 @@ describe("SeriesService", () => {
     let repositoryGetByIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      postServiceDeleteSeriesSpy = jest.spyOn(postService, "deleteSeries");
+      postServiceDeleteSeriesSpy = jest.spyOn(postService, "deleteSeriesInPosts");
       repositoryDeleteSpy = jest.spyOn(repository, "delete");
       repositoryGetByIdSpy = jest.spyOn(repository, "getById");
     });
@@ -213,22 +213,22 @@ describe("SeriesService", () => {
   describe("시리즈 조회", () => {
     // 전체 조회
     // number id를 통해 조회
-    let repositoryGetByAllSpy: jest.SpyInstance;
+    let repositoryGetAllSpy: jest.SpyInstance;
     let repositoryGetByNumIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryGetByAllSpy = jest.spyOn(repository, "getByAll");
+      repositoryGetAllSpy = jest.spyOn(repository, "getAll");
       repositoryGetByNumIdSpy = jest.spyOn(repository, "getByNumId");
     });
 
     describe("성공", () => {
       it("전체 조회", async () => {
-        repositoryGetByAllSpy.mockResolvedValueOnce([SERIES_STUB]);
+        repositoryGetAllSpy.mockResolvedValueOnce([SERIES_STUB]);
 
-        const series = await service.getByAll();
+        const series = await service.getAll();
 
         expect(series).toEqual([SERIES_STUB]);
-        expect(repositoryGetByAllSpy).toBeCalledTimes(1);
+        expect(repositoryGetAllSpy).toBeCalledTimes(1);
       });
 
       it("number id를 통해 조회", async () => {

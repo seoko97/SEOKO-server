@@ -7,8 +7,8 @@ import { Sequence, SequenceModel } from "@/common/sequence/sequence.schema";
 export class SequenceRepository {
   constructor(@InjectModel(Sequence.name) protected readonly sequenceModel: SequenceModel) {}
 
-  async getNextSequence(_id: string) {
-    const sequence = await this.sequenceModel.findOne({ _id });
+  async getNextSequence(target: string) {
+    const sequence = await this.sequenceModel.findOne({ target });
 
     if (sequence) {
       sequence.seq += 1;
@@ -17,7 +17,7 @@ export class SequenceRepository {
 
       return sequence.seq;
     } else {
-      const sequenceDocument = await this.sequenceModel.create({ _id });
+      const sequenceDocument = await this.sequenceModel.create({ target });
 
       return sequenceDocument.seq;
     }

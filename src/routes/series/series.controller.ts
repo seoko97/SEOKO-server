@@ -11,7 +11,7 @@ export class SeriesController {
   @Public()
   @Get()
   async getSeries() {
-    return await this.seriesService.getByAll();
+    return await this.seriesService.getAll();
   }
 
   @Public()
@@ -30,7 +30,7 @@ export class SeriesController {
     return await this.seriesService.update(input);
   }
 
-  @Delete("_id")
+  @Delete(":_id")
   async deleteSeries(@Param("_id") _id: string) {
     return await this.seriesService.delete(_id);
   }
