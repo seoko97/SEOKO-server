@@ -3,34 +3,25 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import * as bcrypt from "bcrypt";
 
+import { BaseRepository } from "@/common/repository/base.repository";
+import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { CreateUserDTO } from "@/routes/user/dto/create-user.dto";
-import { User, UserModel } from "@/routes/user/user.schema";
+import { User, UserDocument, UserModel } from "@/routes/user/user.schema";
 
 const BCRYPT_SALT = 10;
 
 @Injectable()
-export class UserRepository {
-  constructor(@InjectModel(User.name) private readonly userModel: UserModel) {}
+export class UserRepository extends BaseRepository<UserDocument> {
+  constructor(
+    @InjectModel(User.name) private readonly userModel: UserModel,
+    sequenceRepository: SequenceRepository,
+  ) {
+    super(userModel, sequenceRepository);
+  }
 
   async create(createUserDto: CreateUserDTO) {
-    createUserDto.password = await this.hashPassword(createUserDto.password);
+    createUserDto.password = await bcrypt.hash(createUserDto.password, BCRYPT_SALT);
 
-    return this.userModel.create(createUserDto);
-  }
-
-  async getById(_id: string) {
-    return this.userModel.findById(_id, { password: 0 });
-  }
-
-  async getByUserId(userId: string) {
-    return this.userModel.findOne({ userId });
-  }
-
-  async updateRefreshToken(_id: string, refreshToken: string = null) {
-    return this.userModel.updateOne({ _id }, { refreshToken });
-  }
-
-  private async hashPassword(password: string) {
-    return bcrypt.hash(password, BCRYPT_SALT);
+    return super.create(createUserDto);
   }
 }
