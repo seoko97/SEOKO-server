@@ -44,6 +44,8 @@ describe("ProjectService", () => {
   });
 
   describe("프로젝트 수정", () => {
+    const _id = PROJECT_STUB._id;
+
     let repositoryGetByIdSpy: jest.SpyInstance;
     let repositoryFindOneAndUpdateSpy: jest.SpyInstance;
 
@@ -56,26 +58,26 @@ describe("ProjectService", () => {
       repositoryGetByIdSpy.mockResolvedValueOnce(PROJECT_STUB);
       repositoryFindOneAndUpdateSpy.mockResolvedValueOnce(PROJECT_STUB);
 
-      const result = await service.update(UPDATE_PROJECT_STUB);
+      const result = await service.update(_id, UPDATE_PROJECT_STUB);
 
       expect(result).toEqual(PROJECT_STUB);
 
       expect(repositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(PROJECT_STUB._id);
+      expect(repositoryGetByIdSpy).toBeCalledWith(_id);
 
       expect(repositoryFindOneAndUpdateSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryFindOneAndUpdateSpy).toBeCalledWith(UPDATE_PROJECT_STUB);
+      expect(repositoryFindOneAndUpdateSpy).toBeCalledWith({ _id }, UPDATE_PROJECT_STUB);
     });
 
     it("실패 - 존재하지 않는 프로젝트", async () => {
       repositoryGetByIdSpy.mockResolvedValueOnce(null);
 
-      await expect(service.update(UPDATE_PROJECT_STUB)).rejects.toThrowError(
+      await expect(service.update(_id, UPDATE_PROJECT_STUB)).rejects.toThrowError(
         PROJECT_ERROR.NOT_FOUND,
       );
 
       expect(repositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(UPDATE_PROJECT_STUB._id);
+      expect(repositoryGetByIdSpy).toBeCalledWith(_id);
 
       expect(repositoryFindOneAndUpdateSpy).toHaveBeenCalledTimes(0);
     });
