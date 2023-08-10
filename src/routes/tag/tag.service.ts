@@ -7,11 +7,7 @@ export class TagService {
   constructor(private readonly tagRepository: TagRepository) {}
 
   async getAll() {
-    return this.tagRepository.getAll(
-      { posts: { $exists: true, $ne: [] } },
-      { postCount: { $size: "$posts" } },
-      { sort: { postCount: -1 } },
-    );
+    return this.tagRepository.getAllToA();
   }
 
   async getByName(name: string) {
