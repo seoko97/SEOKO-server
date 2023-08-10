@@ -46,11 +46,12 @@ describe("PostController", () => {
       const serviceUpdateSpy: jest.SpyInstance = jest.spyOn(service, "update");
       serviceUpdateSpy.mockResolvedValueOnce(POST_STUB);
 
-      const result = await controller.update(POST_UPDATE_STUB);
+      const postId = POST_STUB._id;
+      const result = await controller.update(postId, POST_UPDATE_STUB);
 
       expect(result).toEqual(POST_STUB);
       expect(serviceUpdateSpy).toBeCalledTimes(1);
-      expect(serviceUpdateSpy).toBeCalledWith(POST_UPDATE_STUB);
+      expect(serviceUpdateSpy).toBeCalledWith(postId, POST_UPDATE_STUB);
     });
   });
 

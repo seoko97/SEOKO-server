@@ -11,7 +11,7 @@ import {
 import { PostService } from "@/routes/post/post.service";
 import { SeriesRepository } from "@/routes/series/series.repository";
 import { SeriesService } from "@/routes/series/series.service";
-import { SERIES_ERROR } from "@/utils/constants";
+import { SERIES_ERROR, SERIES_FIND_OPTIONS, SERIES_FIND_PROJECTION } from "@/utils/constants";
 
 jest.mock("@/routes/post/post.service");
 jest.mock("@/routes/series/series.repository");
@@ -39,11 +39,11 @@ describe("SeriesService", () => {
 
   describe("시리즈 생성", () => {
     let repositoryCreateSpy: jest.SpyInstance;
-    let repositoryGetByNameSpy: jest.SpyInstance;
+    let repositoryGetOneSpy: jest.SpyInstance;
 
     beforeEach(() => {
       repositoryCreateSpy = jest.spyOn(repository, "create");
-      repositoryGetByNameSpy = jest.spyOn(repository, "getByName");
+      repositoryGetOneSpy = jest.spyOn(repository, "getOne");
     });
 
     it("성공", async () => {
@@ -54,13 +54,13 @@ describe("SeriesService", () => {
       expect(series).toEqual(SERIES_STUB_WITHOUT_POSTS);
       expect(repositoryCreateSpy).toBeCalledTimes(1);
       expect(repositoryCreateSpy).toBeCalledWith(SERIES_CREATE_INPUT_STUB);
-      expect(repositoryGetByNameSpy).toBeCalledTimes(1);
-      expect(repositoryGetByNameSpy).toBeCalledWith(SERIES_CREATE_INPUT_STUB.name);
+      expect(repositoryGetOneSpy).toBeCalledTimes(1);
+      expect(repositoryGetOneSpy).toBeCalledWith({ name: SERIES_CREATE_INPUT_STUB.name });
     });
 
     describe("실패", () => {
       it("이미 존재하는 시리즈", async () => {
-        repositoryGetByNameSpy.mockResolvedValueOnce(SERIES_STUB);
+        repositoryGetOneSpy.mockResolvedValueOnce(SERIES_STUB);
 
         try {
           await service.create(SERIES_CREATE_INPUT_STUB);
@@ -69,48 +69,52 @@ describe("SeriesService", () => {
           expect(e.message).toBe(SERIES_ERROR.ALREADY_EXISTS);
           expect(e).toBeInstanceOf(BadRequestException);
           expect(repositoryCreateSpy).toBeCalledTimes(0);
-          expect(repositoryGetByNameSpy).toBeCalledTimes(1);
-          expect(repositoryGetByNameSpy).toBeCalledWith(SERIES_CREATE_INPUT_STUB.name);
+          expect(repositoryGetOneSpy).toBeCalledTimes(1);
+          expect(repositoryGetOneSpy).toBeCalledWith({ name: SERIES_CREATE_INPUT_STUB.name });
         }
       });
     });
   });
 
   describe("시리즈 전체 수정", () => {
-    let repositoryUpdateSpy: jest.SpyInstance;
+    const seriesId = SERIES_STUB._id;
+
+    let repositoryFindOneAndUpdateSpy: jest.SpyInstance;
     let repositoryGetByIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryUpdateSpy = jest.spyOn(repository, "update");
+      repositoryFindOneAndUpdateSpy = jest.spyOn(repository, "findOneAndUpdate");
       repositoryGetByIdSpy = jest.spyOn(repository, "getById");
     });
 
     it("성공", async () => {
       repositoryGetByIdSpy.mockResolvedValueOnce(SERIES_STUB);
-      repositoryGetByIdSpy.mockResolvedValueOnce(SERIES_STUB);
-      repositoryUpdateSpy.mockResolvedValueOnce(SERIES_STUB);
+      repositoryFindOneAndUpdateSpy.mockResolvedValueOnce(SERIES_STUB);
 
-      const series = await service.update(SERIES_UPDATE_INPUT_STUB);
+      const series = await service.update(seriesId, SERIES_UPDATE_INPUT_STUB);
 
       expect(series).toEqual(SERIES_STUB);
-      expect(repositoryGetByIdSpy).toBeCalledTimes(2);
+      expect(repositoryGetByIdSpy).toBeCalledTimes(1);
       expect(repositoryGetByIdSpy).toBeCalledWith(SERIES_STUB._id);
       expect(repositoryGetByIdSpy).toBeCalledWith(SERIES_STUB._id);
-      expect(repositoryUpdateSpy).toBeCalledTimes(1);
-      expect(repositoryUpdateSpy).toBeCalledWith(SERIES_UPDATE_INPUT_STUB);
+      expect(repositoryFindOneAndUpdateSpy).toBeCalledTimes(1);
+      expect(repositoryFindOneAndUpdateSpy).toBeCalledWith(
+        { _id: seriesId },
+        SERIES_UPDATE_INPUT_STUB,
+      );
     });
 
     it("실패", async () => {
       repositoryGetByIdSpy.mockResolvedValueOnce(null);
 
       try {
-        await service.update(SERIES_STUB);
+        await service.update(seriesId, SERIES_STUB);
       } catch (e) {
         expect(e.status).toBe(400);
         expect(e.message).toBe(SERIES_ERROR.NOT_FOUND);
         expect(e).toBeInstanceOf(BadRequestException);
 
-        expect(repositoryUpdateSpy).toBeCalledTimes(0);
+        expect(repositoryFindOneAndUpdateSpy).toBeCalledTimes(0);
         expect(repositoryGetByIdSpy).toBeCalledTimes(1);
         expect(repositoryGetByIdSpy).toBeCalledWith(SERIES_STUB._id);
       }
@@ -145,16 +149,16 @@ describe("SeriesService", () => {
   });
 
   describe("시리즈 수정 - 게시글 제거", () => {
-    let repositoryGetByNameSpy: jest.SpyInstance;
+    let repositoryGetOneSpy: jest.SpyInstance;
     let repositoryPullPostIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryGetByNameSpy = jest.spyOn(repository, "getByName");
+      repositoryGetOneSpy = jest.spyOn(repository, "getOne");
       repositoryPullPostIdSpy = jest.spyOn(repository, "pullPostIdInSeries");
     });
 
     it("성공", async () => {
-      repositoryGetByNameSpy.mockResolvedValueOnce(SERIES_STUB);
+      repositoryGetOneSpy.mockResolvedValueOnce(SERIES_STUB);
       repositoryPullPostIdSpy.mockResolvedValueOnce(undefined);
 
       const seriesId = SERIES_STUB._id;
@@ -165,8 +169,8 @@ describe("SeriesService", () => {
 
       expect(repositoryPullPostIdSpy).toBeCalledTimes(1);
       expect(repositoryPullPostIdSpy).toBeCalledWith(seriesId, postId);
-      expect(repositoryGetByNameSpy).toBeCalledTimes(1);
-      expect(repositoryGetByNameSpy).toBeCalledWith(seriesName);
+      expect(repositoryGetOneSpy).toBeCalledTimes(1);
+      expect(repositoryGetOneSpy).toBeCalledWith({ name: seriesName });
     });
   });
 
@@ -213,12 +217,14 @@ describe("SeriesService", () => {
   describe("시리즈 조회", () => {
     // 전체 조회
     // number id를 통해 조회
+    const args = [{ nid: SERIES_STUB.nid }, SERIES_FIND_PROJECTION, SERIES_FIND_OPTIONS];
+
     let repositoryGetAllSpy: jest.SpyInstance;
-    let repositoryGetByNumIdSpy: jest.SpyInstance;
+    let repositoryGetOneSpy: jest.SpyInstance;
 
     beforeEach(() => {
       repositoryGetAllSpy = jest.spyOn(repository, "getAll");
-      repositoryGetByNumIdSpy = jest.spyOn(repository, "getByNumId");
+      repositoryGetOneSpy = jest.spyOn(repository, "getOne");
     });
 
     describe("성공", () => {
@@ -232,19 +238,19 @@ describe("SeriesService", () => {
       });
 
       it("number id를 통해 조회", async () => {
-        repositoryGetByNumIdSpy.mockResolvedValueOnce(SERIES_STUB);
+        repositoryGetOneSpy.mockResolvedValueOnce(SERIES_STUB);
 
         const series = await service.getByNumId(SERIES_STUB.nid);
 
         expect(series).toEqual(SERIES_STUB);
-        expect(repositoryGetByNumIdSpy).toBeCalledTimes(1);
-        expect(repositoryGetByNumIdSpy).toBeCalledWith(SERIES_STUB.nid);
+        expect(repositoryGetOneSpy).toBeCalledTimes(1);
+        expect(repositoryGetOneSpy).toBeCalledWith(...args);
       });
     });
 
     describe("실패", () => {
       it("number id를 통해 조회 - 존재하지 않는 시리즈", async () => {
-        repositoryGetByNumIdSpy.mockResolvedValueOnce(null);
+        repositoryGetOneSpy.mockResolvedValueOnce(null);
 
         try {
           await service.getByNumId(SERIES_STUB.nid);
@@ -253,8 +259,8 @@ describe("SeriesService", () => {
           expect(e.message).toBe(SERIES_ERROR.NOT_FOUND);
           expect(e).toBeInstanceOf(NotFoundException);
 
-          expect(repositoryGetByNumIdSpy).toBeCalledTimes(1);
-          expect(repositoryGetByNumIdSpy).toBeCalledWith(SERIES_STUB.nid);
+          expect(repositoryGetOneSpy).toBeCalledTimes(1);
+          expect(repositoryGetOneSpy).toBeCalledWith(...args);
         }
       });
     });

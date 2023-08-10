@@ -7,7 +7,7 @@ import { PostRepository } from "@/routes/post/post.repository";
 import { PostDocument } from "@/routes/post/post.schema";
 import { SeriesService } from "@/routes/series/series.service";
 import { TagService } from "@/routes/tag/tag.service";
-import { POST_ERROR } from "@/utils/constants";
+import { POST_ERROR, POST_FIND_PROJECTION } from "@/utils/constants";
 import { filterQueryByPosts } from "@/utils/filterQueryByPosts";
 
 @Injectable()
@@ -59,8 +59,7 @@ export class PostService {
     await this.postRepository.delete(_id);
   }
 
-  async update(updatePostDto: UpdatePostDto) {
-    const _id = updatePostDto._id;
+  async update(_id: string, updatePostDto: UpdatePostDto) {
     const { addTags = [], deleteTags = [], series: seriesName, ...rest } = updatePostDto;
 
     const post = await this.postRepository.getById(_id);
@@ -69,22 +68,20 @@ export class PostService {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
     }
 
-    const input = { ...rest, series: null };
+    const input = { ...rest, series: post.series ?? null };
     const prevSeriesName = post.series?.name ?? null;
 
     try {
-      // 기존에 시리즈가 존재하고 입력받은 시리즈와 다르다면 기존 시리즈 제거
       if (prevSeriesName && prevSeriesName !== seriesName) {
         input.series = null;
         await this.seriesService.pullPostIdInSeries(prevSeriesName, _id);
       }
 
-      // 입력받은 시리즈가 null이 아니고 기존 시리즈가 다르다면
       if (seriesName && prevSeriesName !== seriesName) {
         input.series = await this.seriesService.pushPostIdInSeries(seriesName, _id);
       }
 
-      await this.postRepository.update(input);
+      await this.postRepository.update(_id, input);
 
       const [dTags, aTags] = await Promise.all([
         this.tagService.pullPostIdInTags(deleteTags, _id),
@@ -107,7 +104,9 @@ export class PostService {
   async increaseToLikes(postId: string, ip: string) {
     const { nid } = await this.existPostById(postId);
 
-    const post = await this.postRepository.getByNumId(nid, ip);
+    const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: [ip, "$likes"] } };
+
+    const post = await this.postRepository.getOne({ nid }, projection);
 
     if (post.isLiked) {
       throw new BadRequestException(POST_ERROR.ALREADY_LIKED);
@@ -133,15 +132,18 @@ export class PostService {
   }
 
   async getAll(getPostsDto: GetPostsDto) {
-    const { offset = 0, limit = 10, ...rest } = getPostsDto;
+    const { skip = 0, limit = 10, ...rest } = getPostsDto;
 
-    const options = filterQueryByPosts(rest);
+    const filter = filterQueryByPosts(rest);
+    const options = { skip, limit, sort: { _id: -1 }, populate: ["tags", "series"] };
 
-    return this.postRepository.getAll(options, limit, offset);
+    return this.postRepository.getAll(filter, POST_FIND_PROJECTION, options);
   }
 
   async getByNumId(nid: number, ip: string) {
-    const post = await this.postRepository.getByNumId(nid, ip);
+    const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: [ip, "$likes"] } };
+
+    const post = await this.postRepository.getOne({ nid }, projection);
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);

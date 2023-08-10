@@ -5,4 +5,18 @@ const POST_ERROR = {
   ALREADY_LIKED: "이미 좋아요를 누른 게시글입니다.",
 };
 
-export { POST_ERROR };
+const POST_FIND_PROJECTION = {
+  _id: 1,
+  title: 1,
+  content: 1,
+  thumbnail: 1,
+  nid: 1,
+  createdAt: 1,
+  updatedAt: 1,
+  tags: 1,
+  series: 1,
+  likeCount: { $size: "$likes" },
+  viewCount: { $size: "$views" },
+};
+
+export { POST_ERROR, POST_FIND_PROJECTION };

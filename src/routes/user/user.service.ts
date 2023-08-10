@@ -9,7 +9,8 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDTO) {
-    const user = await this.userRepository.getByUserId(createUserDto.userId);
+    const userId = createUserDto.userId;
+    const user = await this.userRepository.getOne({ userId });
 
     if (user) {
       throw new BadRequestException(USER_ERROR.ALREADY_EXISTS);
@@ -19,14 +20,14 @@ export class UserService {
   }
 
   async getByUserId(userId: string) {
-    return this.userRepository.getByUserId(userId);
+    return this.userRepository.getOne({ userId });
   }
 
   async getById(_id: string) {
-    return this.userRepository.getById(_id);
+    return this.userRepository.getById(_id, { password: 0 });
   }
 
   async updateRefreshToken(_id: string, refreshToken: string = null) {
-    return this.userRepository.updateRefreshToken(_id, refreshToken);
+    return this.userRepository.update(_id, { refreshToken });
   }
 }

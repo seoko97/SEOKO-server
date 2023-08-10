@@ -6,28 +6,9 @@ const TAG_ERROR = {
 };
 
 const GET_TAGS_OPTIONS: PipelineStage[] = [
-  {
-    $lookup: {
-      from: "posts",
-      localField: "posts",
-      foreignField: "_id",
-      as: "posts",
-    },
-  },
-  {
-    $project: {
-      _id: 1,
-      name: 1,
-      createdAt: 1,
-      updatedAt: 1,
-      postCount: { $size: "$posts" },
-    },
-  },
-  {
-    $sort: {
-      postCount: -1,
-    },
-  },
+  { $lookup: { from: "posts", localField: "posts", foreignField: "_id", as: "posts" } },
+  { $project: { _id: 1, name: 1, createdAt: 1, updatedAt: 1, postCount: { $size: "$posts" } } },
+  { $sort: { postCount: -1 } },
 ];
 
 export { TAG_ERROR, GET_TAGS_OPTIONS };

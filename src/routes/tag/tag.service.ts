@@ -7,11 +7,11 @@ export class TagService {
   constructor(private readonly tagRepository: TagRepository) {}
 
   async getAll() {
-    return this.tagRepository.getAll();
+    return this.tagRepository.getAllToA();
   }
 
   async getByName(name: string) {
-    return this.tagRepository.getByName(name);
+    return this.tagRepository.getOne({ name }, {}, { populate: "posts" });
   }
 
   async pushPostIdInTags(tagNames: string[], postId: string) {
@@ -27,7 +27,7 @@ export class TagService {
   async pullPostIdInTags(tagNames: string[], postId: string) {
     await this.tagRepository.pullPostIdInTags(tagNames, postId);
 
-    return this.tagRepository.getAllByTagNames(tagNames);
+    return this.tagRepository.getAll({ name: { $in: tagNames } });
   }
 
   async pullPostIdByPostId(postId: string) {

@@ -1,27 +1,30 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 
+import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { Tag, TagDocument, TagModel } from "@/routes/tag/tag.schema";
 import { GET_TAGS_OPTIONS } from "@/utils/constants/tag";
 
 @Injectable()
-export class TagRepository {
+export class TagRepository extends BaseRepository<TagDocument> {
   constructor(
     @InjectModel(Tag.name) private readonly tagModel: TagModel,
-    private readonly sequenceRepository: SequenceRepository,
-  ) {}
+    sequenceRepository: SequenceRepository,
+  ) {
+    super(tagModel, sequenceRepository);
+  }
 
   async addPostIdInTags(tags: TagDocument[], postId: string) {
     return await this.tagModel.updateMany(
-      { _id: { $in: tags.map((tag) => tag._id) } },
-      { $addToSet: { posts: postId } },
+      { posts: { $ne: postId }, _id: { $in: tags.map((tag) => tag._id) } },
+      { $push: { posts: postId } },
     );
   }
 
   async pullPostIdInTags(tagNames: string[], postId: string) {
     await this.tagModel
-      .updateMany({ name: { $in: tagNames } }, { $pull: { posts: postId } })
+      .updateMany({ name: { $in: tagNames }, posts: { $in: postId } }, { $pull: { posts: postId } })
       .exec();
 
     await this.deleteTagsByEmptyPosts();
@@ -42,20 +45,10 @@ export class TagRepository {
 
     if (tag) return tag;
 
-    const nid = await this.sequenceRepository.getNextSequence("tag");
-
-    return await this.tagModel.create({ name, nid });
+    return super.create({ name });
   }
 
-  async getByName(name: string) {
-    return this.tagModel.findOne({ name }).populate("posts");
-  }
-
-  async getAll() {
-    return await this.tagModel.aggregate<TagDocument>(GET_TAGS_OPTIONS).exec();
-  }
-
-  async getAllByTagNames(tagNames: string[]) {
-    return await this.tagModel.find({ name: { $in: tagNames } });
+  async getAllToA() {
+    return this.tagModel.aggregate<TagDocument>(GET_TAGS_OPTIONS).exec();
   }
 }

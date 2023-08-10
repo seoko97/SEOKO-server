@@ -39,7 +39,7 @@ describe("SeriesController", () => {
     it("성공", async () => {
       serviceGetAllSpy.mockResolvedValueOnce([SERIES_STUB]);
 
-      const series = await controller.getSeries();
+      const series = await controller.getAll();
 
       expect(series).toEqual([SERIES_STUB]);
       expect(serviceGetAllSpy).toHaveBeenCalled();
@@ -57,7 +57,7 @@ describe("SeriesController", () => {
     it("성공", async () => {
       serviceGetByNumIdSpy.mockResolvedValueOnce(SERIES_STUB);
 
-      const series = await controller.getSeriesByNumId("1");
+      const series = await controller.getByNumId(SERIES_STUB.nid);
 
       expect(series).toEqual(SERIES_STUB);
       expect(serviceGetByNumIdSpy).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe("SeriesController", () => {
       serviceGetByNumIdSpy.mockRejectedValueOnce(new NotFoundException(SERIES_ERROR.NOT_FOUND));
 
       try {
-        await controller.getSeriesByNumId("1");
+        await controller.getByNumId(SERIES_STUB.nid);
       } catch (e) {
         expect(e.status).toBe(404);
         expect(e.message).toBe(SERIES_ERROR.NOT_FOUND);
@@ -90,7 +90,7 @@ describe("SeriesController", () => {
     it("성공", async () => {
       serviceUpdateSpy.mockResolvedValueOnce(SERIES_STUB);
 
-      const series = await controller.updateSeries("1", SERIES_STUB);
+      const series = await controller.update("1", SERIES_STUB);
 
       expect(series).toEqual(SERIES_STUB);
       expect(serviceUpdateSpy).toHaveBeenCalled();
@@ -101,7 +101,7 @@ describe("SeriesController", () => {
       serviceUpdateSpy.mockRejectedValueOnce(new BadRequestException(SERIES_ERROR.NOT_FOUND));
 
       try {
-        await controller.updateSeries("1", SERIES_STUB);
+        await controller.update("1", SERIES_STUB);
       } catch (e) {
         expect(e.status).toBe(400);
         expect(e.message).toBe(SERIES_ERROR.NOT_FOUND);
@@ -121,11 +121,11 @@ describe("SeriesController", () => {
     });
 
     it("성공", async () => {
-      serviceDeleteSpy.mockResolvedValueOnce(SERIES_STUB);
+      serviceDeleteSpy.mockResolvedValueOnce(undefined);
 
-      const series = await controller.deleteSeries("1");
+      const series = await controller.delete("1");
 
-      expect(series).toEqual(SERIES_STUB);
+      expect(series).toEqual(true);
       expect(serviceDeleteSpy).toHaveBeenCalled();
       expect(serviceDeleteSpy).toHaveBeenCalledTimes(1);
     });
@@ -134,7 +134,7 @@ describe("SeriesController", () => {
       serviceDeleteSpy.mockRejectedValueOnce(new BadRequestException(SERIES_ERROR.NOT_FOUND));
 
       try {
-        await controller.deleteSeries("1");
+        await controller.delete("1");
       } catch (e) {
         expect(e.status).toBe(400);
         expect(e.message).toBe(SERIES_ERROR.NOT_FOUND);

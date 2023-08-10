@@ -18,7 +18,7 @@ const POST_CREATE_STUB: CreatePostDto = {
 };
 
 const GET_POSTS_DTO_STUB: GetPostsDto = {
-  offset: 0,
+  skip: 0,
   limit: 10,
   series: "series",
   tag: "tag",
@@ -26,7 +26,6 @@ const GET_POSTS_DTO_STUB: GetPostsDto = {
 };
 
 const POST_UPDATE_STUB: UpdatePostDto = {
-  _id: "_id",
   ...POST_CREATE_STUB_WITHOUT_TAGS_AND_SERIES,
   series: "change_series",
   deleteTags: ["delete"],

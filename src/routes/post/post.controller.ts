@@ -23,8 +23,8 @@ export class PostController {
   }
 
   @Put(":_id")
-  async update(@Body() updatePostDto: UpdatePostDto) {
-    const post = await this.postService.update(updatePostDto);
+  async update(@Param("_id") _id: string, @Body() updatePostDto: UpdatePostDto) {
+    const post = await this.postService.update(_id, updatePostDto);
 
     return post;
   }

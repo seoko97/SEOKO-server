@@ -4,4 +4,17 @@ const SERIES_ERROR = {
   ALREADY_EXISTS: "이미 존재하는 시리즈입니다.",
 };
 
-export { SERIES_ERROR };
+const SERIES_FIND_PROJECTION = {
+  _id: 1,
+  nid: 1,
+  name: 1,
+  thumbnail: 1,
+  posts: 1,
+  postCount: { $size: "$posts" },
+};
+
+const SERIES_FIND_OPTIONS = {
+  populate: "posts",
+};
+
+export { SERIES_ERROR, SERIES_FIND_PROJECTION, SERIES_FIND_OPTIONS };
