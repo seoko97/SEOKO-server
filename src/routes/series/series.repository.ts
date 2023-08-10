@@ -1,60 +1,50 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 
+import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { CreateSeriesDto } from "@/routes/series/dto/create-series.dto";
-import { UpdateSeriesDtoWithId } from "@/routes/series/dto/update-series.dto";
-import { Series, SeriesModel } from "@/routes/series/series.schema";
+import { Series, SeriesDocument, SeriesModel } from "@/routes/series/series.schema";
+import { SERIES_FIND_OPTIONS, SERIES_FIND_PROJECTION } from "@/utils/constants";
 
 @Injectable()
-export class SeriesRepository {
+export class SeriesRepository extends BaseRepository<SeriesDocument> {
   constructor(
     @InjectModel(Series.name) private readonly seriesModel: SeriesModel,
-    private readonly sequenceRepository: SequenceRepository,
-  ) {}
-
-  async create(createSeriesDto: CreateSeriesDto) {
-    const nid = await this.sequenceRepository.getNextSequence("series");
-
-    return this.seriesModel.create({ nid, ...createSeriesDto });
-  }
-
-  async update(updateSeriesDto: UpdateSeriesDtoWithId) {
-    const { _id, ...rest } = updateSeriesDto;
-
-    return this.seriesModel.updateOne({ _id }, rest);
+    sequenceRepository: SequenceRepository,
+  ) {
+    super(seriesModel, sequenceRepository);
   }
 
   async pushPostIdInSeries(seriesId: string, postId: string) {
-    return this.seriesModel.updateOne({ _id: seriesId }, { $push: { posts: postId } });
+    return this.seriesModel.updateOne(
+      {
+        _id: seriesId,
+        posts: { $nin: postId },
+      },
+      { $push: { posts: postId } },
+    );
   }
 
   async pullPostIdInSeries(seriesId: string, postId: string) {
-    return this.seriesModel.updateOne({ _id: seriesId }, { $pull: { posts: postId } });
-  }
-
-  async delete(_id: string) {
-    return this.seriesModel.deleteOne({ _id });
+    return this.seriesModel.updateOne(
+      {
+        _id: seriesId,
+        posts: { $in: [postId] },
+      },
+      { $pull: { posts: postId } },
+    );
   }
 
   async getAll() {
-    return this.seriesModel.find({ postCount: { $gt: 0 } });
-  }
-
-  async getByNumId(nid: number) {
-    return this.seriesModel.findOne({ nid });
+    return this.seriesModel.find({}, SERIES_FIND_PROJECTION, SERIES_FIND_OPTIONS);
   }
 
   async getById(_id: string) {
-    return this.seriesModel.findById(_id);
-  }
-
-  async getByName(name: string) {
-    return this.seriesModel.findOne({ name });
+    return this.seriesModel.findById(_id, SERIES_FIND_PROJECTION);
   }
 
   async findOrCreate(name: string) {
-    const series = await this.getByName(name);
+    const series = await this.getOne({ name });
 
     if (series) {
       return series;
