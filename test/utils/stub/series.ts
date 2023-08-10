@@ -4,7 +4,6 @@ const SERIES_CREATE_INPUT_STUB = {
 };
 
 const SERIES_UPDATE_INPUT_STUB = {
-  _id: "id",
   ...SERIES_CREATE_INPUT_STUB,
 };
 
@@ -15,6 +14,7 @@ const SERIES_STUB_WITHOUT_POSTS = {
 
 const SERIES_STUB = {
   ...SERIES_STUB_WITHOUT_POSTS,
+  _id: "id",
   posts: [{ _id: "id" }],
   nid: 1,
 };
