@@ -14,7 +14,7 @@ import { PostRepository } from "@/routes/post/post.repository";
 import { PostService } from "@/routes/post/post.service";
 import { SeriesService } from "@/routes/series/series.service";
 import { TagService } from "@/routes/tag/tag.service";
-import { POST_ERROR } from "@/utils/constants";
+import { POST_ERROR, POST_FIND_PROJECTION } from "@/utils/constants";
 import { filterQueryByPosts } from "@/utils/filterQueryByPosts";
 
 jest.mock("@/routes/post/post.repository");
@@ -119,6 +119,8 @@ describe("PostService", () => {
   });
 
   describe("게시글 수정", () => {
+    const postId = POST_STUB._id;
+
     let postRepositoryGetByIdSpy: jest.SpyInstance;
     let postRepositoryUpdateSpy: jest.SpyInstance;
     let postRepositoryPushTagsSpy: jest.SpyInstance;
@@ -152,10 +154,9 @@ describe("PostService", () => {
       seriesServicePushPostIdSpy.mockResolvedValueOnce(SERIES_STUB);
       seriesServicePullPostIdSpy.mockResolvedValueOnce(undefined);
 
-      const postId = POST._id;
       const { deleteTags, addTags, ...rest } = POST_UPDATE_STUB;
 
-      const post = await postService.update({ ...POST_UPDATE_STUB });
+      const post = await postService.update(postId, { ...POST_UPDATE_STUB });
 
       expect(post).toEqual(POST);
       expect(postRepositoryGetByIdSpy).toBeCalledTimes(2);
@@ -163,7 +164,7 @@ describe("PostService", () => {
       expect(postRepositoryGetByIdSpy).toBeCalledWith(postId);
 
       expect(postRepositoryUpdateSpy).toBeCalledTimes(1);
-      expect(postRepositoryUpdateSpy).toBeCalledWith({ ...rest, series: SERIES_STUB });
+      expect(postRepositoryUpdateSpy).toBeCalledWith(postId, { ...rest, series: SERIES_STUB });
 
       expect(postRepositoryPushTagsSpy).toBeCalledTimes(1);
       expect(postRepositoryPushTagsSpy).toBeCalledWith(postId, [TAG_STUB]);
@@ -189,7 +190,7 @@ describe("PostService", () => {
 
       const POST = { ...POST_STUB };
 
-      await expect(postService.update({ ...POST_UPDATE_STUB })).rejects.toThrowError();
+      await expect(postService.update(postId, { ...POST_UPDATE_STUB })).rejects.toThrowError();
 
       expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
       expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
@@ -204,7 +205,6 @@ describe("PostService", () => {
 
     it("실패 - 업데이트시 에러 발생", async () => {
       const POST = { ...POST_STUB };
-      const postId = POST._id;
 
       POST.series = null;
 
@@ -217,7 +217,7 @@ describe("PostService", () => {
       postRepositoryUpdateSpy.mockRejectedValueOnce(new Error(POST_ERROR.FAIL_UPDATE));
 
       try {
-        await postService.update(POST_UPDATE);
+        await postService.update(postId, POST_UPDATE);
       } catch (e) {
         expect(e).toBeInstanceOf(BadRequestException);
         expect(e.status).toEqual(400);
@@ -227,7 +227,7 @@ describe("PostService", () => {
         expect(postRepositoryGetByIdSpy).toBeCalledWith(postId);
 
         expect(postRepositoryUpdateSpy).toBeCalledTimes(1);
-        expect(postRepositoryUpdateSpy).toBeCalledWith(rest);
+        expect(postRepositoryUpdateSpy).toBeCalledWith(postId, rest);
 
         expect(postRepositoryPushTagsSpy).toBeCalledTimes(0);
         expect(postRepositoryPullTagsSpy).toBeCalledTimes(0);
@@ -321,21 +321,20 @@ describe("PostService", () => {
         postRepository,
         "increaseToLikes",
       );
-      const postRepositoryGetByNumIdSpy: jest.SpyInstance = jest.spyOn(
-        postRepository,
-        "getByNumId",
-      );
+      const postRepositoryGetOneSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
 
-      postRepositoryGetByNumIdSpy.mockResolvedValueOnce(POST_TO_RESULT);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST_TO_RESULT);
       postRepositoryIncreaseLikeSpy.mockResolvedValueOnce(undefined);
       postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+
+      const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: ["ip", "$likes"] } };
 
       await postService.increaseToLikes(POST._id, "ip");
 
       expect(postRepositoryIncreaseLikeSpy).toBeCalledTimes(1);
       expect(postRepositoryIncreaseLikeSpy).toBeCalledWith(POST._id, "ip");
-      expect(postRepositoryGetByNumIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByNumIdSpy).toBeCalledWith(POST.nid, "ip");
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: POST.nid }, projection);
       expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
       expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
     });
@@ -383,6 +382,13 @@ describe("PostService", () => {
   describe("게시글 전체 조회", () => {
     const POSTS = [POST_STUB];
 
+    const BASE_OPTIONS = {
+      sort: { _id: -1 },
+      populate: ["tags", "series"],
+      limit: 10,
+      skip: 0,
+    };
+
     let postRepositoryGetAllSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -395,20 +401,20 @@ describe("PostService", () => {
 
       expect(posts).toEqual(POSTS);
       expect(postRepositoryGetAllSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetAllSpy).toBeCalledWith({}, 10, 0);
+      expect(postRepositoryGetAllSpy).toBeCalledWith({}, POST_FIND_PROJECTION, BASE_OPTIONS);
     });
 
     it("성공 - 텍스트", async () => {
       const dto = {
         text: "text",
       };
-      const options = filterQueryByPosts(dto);
+      const filter = filterQueryByPosts(dto);
 
       const posts = await postService.getAll(dto);
 
       expect(posts).toEqual(POSTS);
       expect(postRepositoryGetAllSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetAllSpy).toBeCalledWith(options, 10, 0);
+      expect(postRepositoryGetAllSpy).toBeCalledWith(filter, POST_FIND_PROJECTION, BASE_OPTIONS);
     });
 
     it("성공 - 시리즈/태그", async () => {
@@ -417,31 +423,36 @@ describe("PostService", () => {
         tag: TAG_STUB.name,
       };
 
-      const options = filterQueryByPosts(dto);
+      const filter = filterQueryByPosts(dto);
 
       const posts = await postService.getAll(dto);
 
       expect(posts).toEqual(POSTS);
       expect(postRepositoryGetAllSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetAllSpy).toBeCalledWith(options, 10, 0);
+      expect(postRepositoryGetAllSpy).toBeCalledWith(filter, POST_FIND_PROJECTION, BASE_OPTIONS);
     });
 
-    it("성공 - 텍스트/시리즈/태그/오프셋/리미트", async () => {
+    it("성공 - 텍스트/시리즈/태그/스킵/리미트", async () => {
       const dto = {
         text: "text",
         series: POST_STUB.series.name,
         tag: TAG_STUB.name,
-        offset: 10,
-        limit: 10,
+        skip: 1000,
+        limit: 1000,
       };
 
-      const options = filterQueryByPosts(dto);
+      const filter = filterQueryByPosts(dto);
+      const options = {
+        ...BASE_OPTIONS,
+        skip: dto.skip,
+        limit: dto.limit,
+      };
 
       const posts = await postService.getAll(dto);
 
       expect(posts).toEqual(POSTS);
       expect(postRepositoryGetAllSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetAllSpy).toBeCalledWith(options, dto.limit, dto.offset);
+      expect(postRepositoryGetAllSpy).toBeCalledWith(filter, POST_FIND_PROJECTION, options);
     });
   });
 
@@ -449,17 +460,16 @@ describe("PostService", () => {
     const POST = { ...POST_STUB };
 
     it("성공 - 숫자 id로 조회", async () => {
-      const postRepositoryGetByNumIdSpy: jest.SpyInstance = jest.spyOn(
-        postRepository,
-        "getByNumId",
-      );
-      postRepositoryGetByNumIdSpy.mockResolvedValueOnce(POST);
+      const postRepositoryGetOneSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+
+      const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: ["ip", "$likes"] } };
 
       const post = await postService.getByNumId(POST.nid, "ip");
 
       expect(post).toEqual(POST);
-      expect(postRepositoryGetByNumIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByNumIdSpy).toBeCalledWith(POST.nid, "ip");
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: POST.nid }, projection);
     });
 
     it("성공 - Object id로 조회", async () => {

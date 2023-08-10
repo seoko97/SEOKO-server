@@ -2,9 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 
 import { PostService } from "@/routes/post/post.service";
 import { CreateSeriesDto } from "@/routes/series/dto/create-series.dto";
-import { UpdateSeriesDtoWithId } from "@/routes/series/dto/update-series.dto";
+import { UpdateSeriesDto } from "@/routes/series/dto/update-series.dto";
 import { SeriesRepository } from "@/routes/series/series.repository";
-import { SERIES_ERROR } from "@/utils/constants";
+import { SERIES_ERROR, SERIES_FIND_OPTIONS, SERIES_FIND_PROJECTION } from "@/utils/constants";
 
 @Injectable()
 export class SeriesService {
@@ -16,7 +16,7 @@ export class SeriesService {
   async create(createSeriesDto: CreateSeriesDto) {
     const { name } = createSeriesDto;
 
-    const prevSeries = await this.seriesRepository.getByName(name);
+    const prevSeries = await this.seriesRepository.getOne({ name });
 
     if (prevSeries) {
       throw new BadRequestException(SERIES_ERROR.ALREADY_EXISTS);
@@ -25,12 +25,10 @@ export class SeriesService {
     return this.seriesRepository.create(createSeriesDto);
   }
 
-  async update(updateSeriesDto: UpdateSeriesDtoWithId) {
-    await this.checkSeriesById(updateSeriesDto._id);
+  async update(_id: string, updateSeriesDto: UpdateSeriesDto) {
+    await this.checkSeriesById(_id);
 
-    await this.seriesRepository.update(updateSeriesDto);
-
-    return this.seriesRepository.getById(updateSeriesDto._id);
+    return this.seriesRepository.findOneAndUpdate({ _id }, updateSeriesDto);
   }
 
   async pushPostIdInSeries(name: string, postId: string) {
@@ -42,7 +40,7 @@ export class SeriesService {
   }
 
   async pullPostIdInSeries(name: string, postId: string) {
-    const series = await this.seriesRepository.getByName(name);
+    const series = await this.seriesRepository.getOne({ name });
 
     if (!series) {
       throw new BadRequestException(SERIES_ERROR.NOT_FOUND);
@@ -65,7 +63,11 @@ export class SeriesService {
   }
 
   async getByNumId(nid: number) {
-    const series = await this.seriesRepository.getByNumId(nid);
+    const series = await this.seriesRepository.getOne(
+      { nid },
+      SERIES_FIND_PROJECTION,
+      SERIES_FIND_OPTIONS,
+    );
 
     if (!series) {
       throw new NotFoundException(SERIES_ERROR.NOT_FOUND);

@@ -7,7 +7,7 @@ export class GetPostsDto {
   series?: string;
 
   @IsOptionalCustom(IsNumber())
-  offset?: number;
+  skip?: number;
 
   @IsOptionalCustom(IsNumber())
   limit?: number;

@@ -11,27 +11,30 @@ export class SeriesController {
   @Public()
   @Get()
   async getSeries() {
-    return await this.seriesService.getAll();
+    const series = await this.seriesService.getAll();
+
+    return series;
   }
 
   @Public()
-  @Get(":numId")
-  async getSeriesByNumId(@Param("numId") numId: string) {
-    return await this.seriesService.getByNumId(Number(numId));
+  @Get(":nid")
+  async getSeriesByNumId(@Param("nid") nid: number) {
+    const series = await this.seriesService.getByNumId(nid);
+
+    return series;
   }
 
   @Patch(":_id")
   async updateSeries(@Param("_id") _id: string, @Body() updateSeriesDto: UpdateSeriesDto) {
-    const input = {
-      ...updateSeriesDto,
-      _id,
-    };
+    const series = await this.seriesService.update(_id, updateSeriesDto);
 
-    return await this.seriesService.update(input);
+    return series;
   }
 
   @Delete(":_id")
   async deleteSeries(@Param("_id") _id: string) {
-    return await this.seriesService.delete(_id);
+    await this.seriesService.delete(_id);
+
+    return true;
   }
 }
