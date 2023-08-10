@@ -2,11 +2,7 @@ import { FilterQuery, Document as MDocument, Model, ProjectionType, QueryOptions
 
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 
-export class BaseRepository<
-  Document extends MDocument,
-  CreateDto = unknown,
-  UpdateDto = { _id: string },
-> {
+export class BaseRepository<Document extends MDocument, CreateDto = unknown, UpdateDto = unknown> {
   constructor(
     private readonly model: Model<Document>,
     private readonly sequenceRepository?: SequenceRepository,
@@ -20,8 +16,8 @@ export class BaseRepository<
     return this.model.create({ nid, ...data });
   }
 
-  async update(data: UpdateDto) {
-    return this.model.updateOne({ _id: data["_id"] }, data);
+  async update(_id: string, data: UpdateDto) {
+    return this.model.updateOne({ _id }, data);
   }
 
   async findOneAndUpdate(
@@ -29,7 +25,7 @@ export class BaseRepository<
     data: UpdateDto,
     options: QueryOptions<Document> = {},
   ) {
-    return this.model.findOneAndUpdate(filter, data, options);
+    return this.model.findOneAndUpdate(filter, data, { ...options, new: true });
   }
 
   async delete(_id: string) {
