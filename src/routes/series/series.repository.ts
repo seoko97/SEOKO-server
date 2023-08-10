@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { Series, SeriesDocument, SeriesModel } from "@/routes/series/series.schema";
-import { SERIES_FIND_OPTIONS, SERIES_FIND_PROJECTION } from "@/utils/constants";
+import { SERIES_FIND_PROJECTION } from "@/utils/constants";
 
 @Injectable()
 export class SeriesRepository extends BaseRepository<SeriesDocument> {
@@ -36,7 +36,7 @@ export class SeriesRepository extends BaseRepository<SeriesDocument> {
   }
 
   async getAll() {
-    return this.seriesModel.find({}, SERIES_FIND_PROJECTION, SERIES_FIND_OPTIONS);
+    return this.seriesModel.find({}, { ...SERIES_FIND_PROJECTION, posts: 0 });
   }
 
   async getById(_id: string) {
