@@ -1,5 +1,7 @@
 import { TOKEN_STUB } from "test/utils/stub/auth";
 
+import { UserDocument } from "@/routes/user/user.schema";
+
 const TOKEN_USER_STUB = {
   _id: "id",
 };
@@ -15,12 +17,12 @@ const USER_STUB_NON_PASSWORD = {
   username: "test",
   refreshToken: TOKEN_STUB,
   nid: 1,
-};
+} as unknown as UserDocument;
 
 const USER_STUB = {
   ...USER_STUB_NON_PASSWORD,
   password: "test",
-};
+} as unknown as UserDocument;
 
 const USER_INPUT_STUB = {
   ...USER_ID_PASSWORD_STUB,

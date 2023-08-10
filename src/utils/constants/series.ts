@@ -14,7 +14,6 @@ const SERIES_FIND_PROJECTION = {
 };
 
 const SERIES_FIND_OPTIONS = {
-  sort: { postCount: -1 },
   populate: "posts",
 };
 
