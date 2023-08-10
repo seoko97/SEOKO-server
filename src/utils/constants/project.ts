@@ -1,5 +1,5 @@
 const PROJECT_ERROR = {
-  NOT_FOUND: "프로젝트를 찾을 수 없습니다.",
+  NOT_FOUND: "존재하지 않는 프로젝트입니다.",
 };
 
 export { PROJECT_ERROR };
