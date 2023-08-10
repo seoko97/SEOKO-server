@@ -28,7 +28,7 @@ describe("TagService", () => {
 
   describe("태그 조회", () => {
     it("태그 전체 조회", async () => {
-      const repositoryGetAllSpy: jest.SpyInstance = jest.spyOn(repository, "getAll");
+      const repositoryGetAllSpy: jest.SpyInstance = jest.spyOn(repository, "getAllToA");
       repositoryGetAllSpy.mockResolvedValueOnce([TAG_STUB]);
 
       const tags = await service.getAll();
@@ -36,11 +36,7 @@ describe("TagService", () => {
       expect(tags).toEqual([TAG_STUB]);
       expect(repositoryGetAllSpy).toHaveBeenCalled();
       expect(repositoryGetAllSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetAllSpy).toHaveBeenCalledWith(
-        { posts: { $exists: true, $ne: [] } },
-        { postCount: { $size: "$posts" } },
-        { sort: { postCount: -1 } },
-      );
+      expect(repositoryGetAllSpy).toHaveBeenCalledWith();
     });
 
     it("태그 이름으로 조회", async () => {
