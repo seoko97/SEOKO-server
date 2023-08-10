@@ -5,7 +5,7 @@ import { SequenceRepository } from "@/common/sequence/sequence.repository";
 export class BaseRepository<Document extends MDocument, CreateDto = unknown, UpdateDto = unknown> {
   constructor(
     private readonly model: Model<Document>,
-    private readonly sequenceRepository?: SequenceRepository,
+    private readonly sequenceRepository: SequenceRepository,
   ) {}
 
   async create(data: CreateDto): Promise<Document> {
