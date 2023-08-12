@@ -1,5 +1,5 @@
-import { SERIES_STUB } from "test/utils/stub/series";
-import { TAG_STUB } from "test/utils/stub/tag";
+import { SERIES_STUB } from "test/utils/stub";
+import { TAG_STUB } from "test/utils/stub";
 
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";

@@ -6,7 +6,7 @@ import {
   SERIES_STUB,
   SERIES_STUB_WITHOUT_POSTS,
   SERIES_UPDATE_INPUT_STUB,
-} from "test/utils/stub/series";
+} from "test/utils/stub";
 
 import { PostService } from "@/routes/post/post.service";
 import { SeriesRepository } from "@/routes/series/series.repository";
