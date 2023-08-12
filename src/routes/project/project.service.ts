@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateProjectDto } from "@/routes/project/dto/create-project.dto";
 import { UpdateProjectDto } from "@/routes/project/dto/update-project.dto";
 import { ProjectRepository } from "@/routes/project/project.repository";
-import { PROJECT_ERROR } from "@/utils/constants/project";
+import { PROJECT_ERROR } from "@/utils/constants";
 
 @Injectable()
 export class ProjectService {

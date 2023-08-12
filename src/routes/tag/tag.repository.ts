@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { Tag, TagDocument, TagModel } from "@/routes/tag/tag.schema";
-import { GET_TAGS_OPTIONS } from "@/utils/constants/tag";
+import { GET_TAGS_OPTIONS } from "@/utils/constants";
 
 @Injectable()
 export class TagRepository extends BaseRepository<TagDocument> {

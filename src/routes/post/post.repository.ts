@@ -5,7 +5,7 @@ import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { Post, PostDocument, PostModel } from "@/routes/post/post.schema";
 import { TagDocument } from "@/routes/tag/tag.schema";
-import { IUpdatePostArgs } from "@/types/post";
+import { IUpdatePostArgs } from "@/types";
 import { POST_FIND_PROJECTION } from "@/utils/constants";
 
 @Injectable()
