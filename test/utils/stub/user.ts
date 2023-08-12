@@ -1,4 +1,4 @@
-import { TOKEN_STUB } from "test/utils/stub/auth";
+import { TOKEN_STUB } from "test/utils/stub";
 
 import { UserDocument } from "@/routes/user/user.schema";
 

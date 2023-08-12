@@ -1,10 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 
-import { CREATE_PROJECT_STUB, PROJECT_STUB, UPDATE_PROJECT_STUB } from "test/utils/stub/project";
+import { CREATE_PROJECT_STUB, PROJECT_STUB, UPDATE_PROJECT_STUB } from "test/utils/stub";
 
 import { ProjectRepository } from "@/routes/project/project.repository";
 import { ProjectService } from "@/routes/project/project.service";
-import { PROJECT_ERROR } from "@/utils/constants/project";
+import { PROJECT_ERROR } from "@/utils/constants";
 
 jest.mock("@/routes/project/project.repository");
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 
-import { PROJECT_STUB } from "test/utils/stub/project";
+import { PROJECT_STUB } from "test/utils/stub";
 
 import { ProjectController } from "@/routes/project/project.controller";
 import { ProjectService } from "@/routes/project/project.service";
