@@ -25,7 +25,7 @@ export class BaseRepository<Document extends MDocument, CreateDto = unknown, Upd
     data: UpdateDto,
     options: QueryOptions<Document> = {},
   ) {
-    return this.model.findOneAndUpdate(filter, data, { ...options, new: true });
+    return this.model.findOneAndUpdate(filter, data, { new: true, ...options });
   }
 
   async delete(_id: string) {
