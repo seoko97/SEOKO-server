@@ -5,6 +5,7 @@ import { AccessJwtAuthGuard } from "@/common/guards";
 import { CommonModule } from "@/common/modules";
 import { SequenceModule } from "@/common/sequence/sequence.module";
 import { AuthModule } from "@/routes/auth/auth.module";
+import { ExperienceModule } from "@/routes/experience/experience.module";
 import { ImageModule } from "@/routes/image/image.module";
 import { PostModule } from "@/routes/post/post.module";
 import { ProjectModule } from "@/routes/project/project.module";
@@ -22,6 +23,7 @@ import { UserModule } from "@/routes/user/user.module";
     SeriesModule,
     TagModule,
     ProjectModule,
+    ExperienceModule,
     ImageModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessJwtAuthGuard }],
