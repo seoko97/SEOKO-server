@@ -6,7 +6,6 @@ import { ExperienceController } from "@/routes/experience/experience.controller"
 import { ExperienceService } from "@/routes/experience/experience.service";
 
 jest.mock("@/routes/experience/experience.service");
-``;
 
 describe("ExperienceController", () => {
   let controller: ExperienceController;
