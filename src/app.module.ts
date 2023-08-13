@@ -10,6 +10,7 @@ import { ImageModule } from "@/routes/image/image.module";
 import { PostModule } from "@/routes/post/post.module";
 import { ProjectModule } from "@/routes/project/project.module";
 import { SeriesModule } from "@/routes/series/series.module";
+import { SkillModule } from "@/routes/skill/skill.module";
 import { TagModule } from "@/routes/tag/tag.module";
 import { UserModule } from "@/routes/user/user.module";
 
@@ -24,6 +25,7 @@ import { UserModule } from "@/routes/user/user.module";
     TagModule,
     ProjectModule,
     ExperienceModule,
+    SkillModule,
     ImageModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessJwtAuthGuard }],
