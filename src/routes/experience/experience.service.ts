@@ -18,7 +18,7 @@ export class ExperienceService {
   async update(_id: string, data: UpdateExperienceDto) {
     await this.checkToExistById(_id);
 
-    await this.checkToExistByTitle(data.title);
+    await this.checkToExistByTitle(data.title, _id);
 
     return this.experienceRepository.findOneAndUpdate({ _id }, data);
   }
@@ -43,8 +43,8 @@ export class ExperienceService {
     return true;
   }
 
-  async checkToExistByTitle(title: string) {
-    const experience = await this.experienceRepository.getOne({ title });
+  async checkToExistByTitle(title: string, _id = "") {
+    const experience = await this.experienceRepository.getOne({ title, _id: { $ne: _id } });
 
     if (experience) {
       throw new BadRequestException(EXPERIENCE_ERROR.ALREADY_EXISTS);
