@@ -32,6 +32,8 @@ describe("ExperienceService", () => {
     let repositoryCreateSpy: jest.SpyInstance;
     let repositoryGetOneSpy: jest.SpyInstance;
 
+    const GET_ALL_PARAMS = { title: CREATE_EXPERIENCE_STUB.title, _id: { $ne: "" } };
+
     beforeEach(() => {
       repositoryCreateSpy = jest.spyOn(repository, "create");
       repositoryGetOneSpy = jest.spyOn(repository, "getOne");
@@ -46,7 +48,7 @@ describe("ExperienceService", () => {
       expect(result).toEqual(EXPERIENCE_STUB);
 
       expect(repositoryGetOneSpy).toBeCalledTimes(1);
-      expect(repositoryGetOneSpy).toBeCalledWith({ title: CREATE_EXPERIENCE_STUB.title });
+      expect(repositoryGetOneSpy).toBeCalledWith(GET_ALL_PARAMS);
 
       expect(repositoryCreateSpy).toBeCalledTimes(1);
       expect(repositoryCreateSpy).toBeCalledWith(CREATE_EXPERIENCE_STUB);
@@ -60,7 +62,7 @@ describe("ExperienceService", () => {
       );
 
       expect(repositoryGetOneSpy).toBeCalledTimes(1);
-      expect(repositoryGetOneSpy).toBeCalledWith({ title: CREATE_EXPERIENCE_STUB.title });
+      expect(repositoryGetOneSpy).toBeCalledWith(GET_ALL_PARAMS);
 
       expect(repositoryCreateSpy).toBeCalledTimes(0);
     });
@@ -70,6 +72,8 @@ describe("ExperienceService", () => {
     let repositoryGetByIdSpy: jest.SpyInstance;
     let repositoryGetOneSpy: jest.SpyInstance;
     let repositoryFindOneAndUpdateSpy: jest.SpyInstance;
+
+    const GET_ALL_PARAMS = { title: EXPERIENCE_STUB.title, _id: { $ne: EXPERIENCE_STUB._id } };
 
     beforeEach(() => {
       repositoryGetByIdSpy = jest.spyOn(repository, "getById");
@@ -90,7 +94,7 @@ describe("ExperienceService", () => {
       expect(repositoryGetByIdSpy).toBeCalledWith(EXPERIENCE_STUB._id);
 
       expect(repositoryGetOneSpy).toBeCalledTimes(1);
-      expect(repositoryGetOneSpy).toBeCalledWith({ title: CREATE_EXPERIENCE_STUB.title });
+      expect(repositoryGetOneSpy).toBeCalledWith(GET_ALL_PARAMS);
 
       expect(repositoryFindOneAndUpdateSpy).toBeCalledTimes(1);
       expect(repositoryFindOneAndUpdateSpy).toBeCalledWith(
@@ -126,7 +130,7 @@ describe("ExperienceService", () => {
       expect(repositoryGetByIdSpy).toBeCalledWith(EXPERIENCE_STUB._id);
 
       expect(repositoryGetOneSpy).toBeCalledTimes(1);
-      expect(repositoryGetOneSpy).toBeCalledWith({ title: CREATE_EXPERIENCE_STUB.title });
+      expect(repositoryGetOneSpy).toBeCalledWith(GET_ALL_PARAMS);
 
       expect(repositoryFindOneAndUpdateSpy).toBeCalledTimes(0);
     });
