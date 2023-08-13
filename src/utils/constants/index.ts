@@ -5,3 +5,4 @@ export * from "./post";
 export * from "./image";
 export * from "./project";
 export * from "./tag";
+export * from "./experience";
