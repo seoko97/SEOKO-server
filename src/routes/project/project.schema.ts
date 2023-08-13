@@ -9,7 +9,7 @@ import { BaseSchema } from "@/common/schema/base.schema";
 export type ProjectDocument = Project & Document;
 export type ProjectModel = Model<ProjectDocument>;
 
-@Schema({ timestamps: true })
+@Schema()
 export class Project extends BaseSchema {
   @IsString()
   @Prop({ required: true })
