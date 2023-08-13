@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Ip, Param, Patch, Post, Put, Query } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
+import { ValidateObjectIdPipe } from "@/common/pipes/validate-objectid.pipe";
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
@@ -18,12 +19,15 @@ export class PostController {
   }
 
   @Delete(":_id")
-  async delete(@Param("_id") _id: string) {
+  async delete(@Param("_id", ValidateObjectIdPipe) _id: string) {
     await this.postService.delete(_id);
   }
 
   @Put(":_id")
-  async update(@Param("_id") _id: string, @Body() updatePostDto: UpdatePostDto) {
+  async update(
+    @Param("_id", ValidateObjectIdPipe) _id: string,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
     const post = await this.postService.update(_id, updatePostDto);
 
     return post;
