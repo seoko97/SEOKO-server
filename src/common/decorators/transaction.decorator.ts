@@ -1,8 +1,8 @@
 import { InternalServerErrorException } from "@nestjs/common";
 
-import { CONNECTION_NOT_FOUND, TRANSACTION_SESSION } from "@/common/transition/constants";
-import { ALS } from "@/common/transition/core/AsyncLocalStorage";
-import { ConnectionStore } from "@/common/transition/core/ConnectionStore";
+import { CONNECTION_NOT_FOUND, TRANSACTION_SESSION } from "@/common/transaction/constants";
+import { ALS } from "@/common/transaction/core/AsyncLocalStorage";
+import { ConnectionStore } from "@/common/transaction/core/ConnectionStore";
 
 function Transactional(): MethodDecorator {
   return (target: any, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<any>) => {

@@ -10,9 +10,9 @@ import {
   TRANSACTION_SESSION,
   documentAndQueryMiddleware,
   middlewareGroups,
-} from "@/common/transition/constants";
-import { ALS } from "@/common/transition/core/AsyncLocalStorage";
-import { EMiddlewareTypes, TMiddlewareType } from "@/common/transition/type";
+} from "@/common/transaction/constants";
+import { ALS } from "@/common/transaction/core/AsyncLocalStorage";
+import { EMiddlewareTypes, TMiddlewareType } from "@/common/transaction/type";
 
 function transactionPlugin(schema: Schema) {
   for (const middlewareType in middlewareGroups) {

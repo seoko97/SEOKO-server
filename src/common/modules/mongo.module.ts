@@ -4,8 +4,8 @@ import { MongooseModule } from "@nestjs/mongoose";
 
 import { Connection } from "mongoose";
 
-import { ConnectionStore } from "@/common/transition/core/ConnectionStore";
-import { transactionPlugin } from "@/common/transition/mongoosePluginCb";
+import { ConnectionStore } from "@/common/transaction/core/ConnectionStore";
+import { transactionPlugin } from "@/common/transaction/mongoosePluginCb";
 
 @Module({
   imports: [

@@ -1,4 +1,4 @@
-import { EMiddlewareTypes } from "@/common/transition/type";
+import { EMiddlewareTypes } from "@/common/transaction/type";
 
 const TRANSACTION_KEY = "transaction";
 const TRANSACTION_SESSION = Symbol("transaction_session");

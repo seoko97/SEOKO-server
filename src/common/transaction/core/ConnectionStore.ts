@@ -1,6 +1,6 @@
 import { Connection } from "mongoose";
 
-import { TRANSACTION_KEY } from "@/common/transition/constants";
+import { TRANSACTION_KEY } from "@/common/transaction/constants";
 
 class ConnectionStore {
   private static instance: ConnectionStore = new ConnectionStore();
