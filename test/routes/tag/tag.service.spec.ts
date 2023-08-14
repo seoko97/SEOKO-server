@@ -6,6 +6,11 @@ import { TagRepository } from "@/routes/tag/tag.repository";
 import { TagService } from "@/routes/tag/tag.service";
 
 jest.mock("@/routes/tag/tag.repository");
+jest.mock("@/common/decorators/transaction.decorator", () => ({
+  Transactional: () => {
+    return jest.fn();
+  },
+}));
 
 describe("TagService", () => {
   let service: TagService;

@@ -1,10 +1,10 @@
 import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
 
+import { Transactional } from "@/common/decorators/transaction.decorator";
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
 import { PostRepository } from "@/routes/post/post.repository";
-import { PostDocument } from "@/routes/post/post.schema";
 import { SeriesService } from "@/routes/series/series.service";
 import { TagService } from "@/routes/tag/tag.service";
 import { POST_ERROR, POST_FIND_PROJECTION } from "@/utils/constants";
@@ -18,13 +18,12 @@ export class PostService {
     @Inject(forwardRef(() => SeriesService)) private readonly seriesService: SeriesService,
   ) {}
 
+  @Transactional()
   async create(createPostDto: CreatePostDto) {
     const { tags: tagNames, series: seriesName, ...rest } = createPostDto;
 
-    let post: PostDocument;
-
     try {
-      post = await this.postRepository.create(rest);
+      const post = await this.postRepository.create(rest);
 
       if (seriesName) {
         post.series = await this.seriesService.pushPostIdInSeries(seriesName, post._id);
@@ -35,16 +34,14 @@ export class PostService {
       }
 
       await this.postRepository.save(post);
+
+      return post;
     } catch (error) {
       throw new BadRequestException(error?.massage || POST_ERROR.FAIL_CREATE);
     }
-
-    await post.populate("tags");
-    await post.populate("series");
-
-    return post;
   }
 
+  @Transactional()
   async delete(_id: string) {
     const post = await this.postRepository.getById(_id);
 
@@ -59,6 +56,7 @@ export class PostService {
     await this.postRepository.delete(_id);
   }
 
+  @Transactional()
   async update(_id: string, updatePostDto: UpdatePostDto) {
     const { addTags = [], deleteTags = [], series: seriesName, ...rest } = updatePostDto;
 
@@ -97,10 +95,7 @@ export class PostService {
     return this.postRepository.getById(_id);
   }
 
-  async deleteSeriesInPosts(seriesId: string) {
-    return this.postRepository.deleteSeriesInPosts(seriesId);
-  }
-
+  @Transactional()
   async increaseToLikes(postId: string, ip: string) {
     const { nid } = await this.existPostById(postId);
 
@@ -115,12 +110,14 @@ export class PostService {
     return this.postRepository.increaseToLikes(postId, ip);
   }
 
+  @Transactional()
   async decreaseToLikes(postId: string, ip: string) {
     await this.existPostById(postId);
 
     return this.postRepository.decreaseToLikes(postId, ip);
   }
 
+  @Transactional()
   async increaseToViews(postId: string, ip: string) {
     await this.existPostById(postId);
 

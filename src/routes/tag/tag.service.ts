@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
+import { Transactional } from "@/common/decorators/transaction.decorator";
 import { TagRepository } from "@/routes/tag/tag.repository";
 
 @Injectable()
@@ -14,6 +15,7 @@ export class TagService {
     return this.tagRepository.getOne({ name }, {}, { populate: "posts" });
   }
 
+  @Transactional()
   async pushPostIdInTags(tagNames: string[], postId: string) {
     const tags = await Promise.all(
       tagNames.map((tagName) => this.tagRepository.findOrCreate(tagName)),
@@ -24,12 +26,14 @@ export class TagService {
     return tags;
   }
 
+  @Transactional()
   async pullPostIdInTags(tagNames: string[], postId: string) {
     await this.tagRepository.pullPostIdInTags(tagNames, postId);
 
     return this.tagRepository.getAll({ name: { $in: tagNames } });
   }
 
+  @Transactional()
   async pullPostIdByPostId(postId: string) {
     await this.tagRepository.pullPostIdByPostId(postId);
   }

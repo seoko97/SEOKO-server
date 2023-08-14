@@ -20,6 +20,11 @@ import { filterQueryByPosts } from "@/utils/filterQueryByPosts";
 jest.mock("@/routes/post/post.repository");
 jest.mock("@/routes/series/series.service");
 jest.mock("@/routes/tag/tag.service");
+jest.mock("@/common/decorators/transaction.decorator", () => ({
+  Transactional: () => {
+    return jest.fn();
+  },
+}));
 
 describe("PostService", () => {
   let postRepository: PostRepository;
@@ -278,25 +283,6 @@ describe("PostService", () => {
         POST.tags.map((tag) => tag.name),
         postId,
       );
-    });
-  });
-
-  describe("게시글에서 시리즈 제거", () => {
-    it("성공", async () => {
-      const postRepositoryDeleteSeriesSpy: jest.SpyInstance = jest.spyOn(
-        postRepository,
-        "deleteSeriesInPosts",
-      );
-
-      postRepositoryDeleteSeriesSpy.mockResolvedValueOnce(undefined);
-
-      const POST = { ...POST_STUB };
-      const seriesId = POST.series._id;
-
-      await postService.deleteSeriesInPosts(seriesId);
-
-      expect(postRepositoryDeleteSeriesSpy).toBeCalledTimes(1);
-      expect(postRepositoryDeleteSeriesSpy).toBeCalledWith(seriesId);
     });
   });
 
