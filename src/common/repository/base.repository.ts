@@ -28,6 +28,10 @@ export class BaseRepository<Document extends MDocument, CreateDto = unknown, Upd
     return this.model.findOneAndUpdate(filter, data, { new: true, ...options });
   }
 
+  async findOneAndDelete(filter: FilterQuery<Document>, options: QueryOptions<Document> = {}) {
+    return this.model.findOneAndDelete(filter, options);
+  }
+
   async delete(_id: string) {
     await this.model.deleteOne({ _id });
   }
