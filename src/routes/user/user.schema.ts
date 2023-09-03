@@ -8,7 +8,7 @@ import { BaseSchema } from "@/common/schema/base.schema";
 export type UserDocument = User & Document;
 export type UserModel = Model<UserDocument>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User extends BaseSchema {
   @IsString()
   @Prop({ required: true })

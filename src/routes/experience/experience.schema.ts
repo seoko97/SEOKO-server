@@ -9,7 +9,7 @@ import { BaseSchema } from "@/common/schema/base.schema";
 export type ExperienceDocument = Experience & Document;
 export type ExperienceModel = Model<ExperienceDocument>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Experience extends BaseSchema {
   @IsString()
   @Prop({ required: true, unique: true })

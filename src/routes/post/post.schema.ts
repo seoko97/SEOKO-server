@@ -10,7 +10,7 @@ import { Tag } from "@/routes/tag/tag.schema";
 export type PostDocument = Post & Document;
 export type PostModel = Model<PostDocument>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Post extends BaseSchema {
   @IsString()
   @Prop({ required: true })
