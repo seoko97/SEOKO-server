@@ -51,9 +51,11 @@ export class PostService {
 
     const tagNames = post.tags.map((tag) => tag.name);
 
-    await this.seriesService.pullPostIdInSeries(post.series.name, _id);
-    await this.tagService.pullPostIdInTags(tagNames, _id);
+    if (post.series) await this.seriesService.pullPostIdInSeries(post.series.name, _id);
+    if (tagNames.length) await this.tagService.pullPostIdInTags(tagNames, _id);
     await this.postRepository.delete(_id);
+
+    return post.nid;
   }
 
   @Transactional()
@@ -107,14 +109,18 @@ export class PostService {
       throw new BadRequestException(POST_ERROR.ALREADY_LIKED);
     }
 
-    return this.postRepository.increaseToLikes(postId, ip);
+    await this.postRepository.increaseToLikes(postId, ip);
+
+    return nid;
   }
 
   @Transactional()
   async decreaseToLikes(postId: string, ip: string) {
-    await this.existPostById(postId);
+    const { nid } = await this.existPostById(postId);
 
-    return this.postRepository.decreaseToLikes(postId, ip);
+    await this.postRepository.decreaseToLikes(postId, ip);
+
+    return nid;
   }
 
   @Transactional()
@@ -129,10 +135,10 @@ export class PostService {
   }
 
   async getAll(getPostsDto: GetPostsDto) {
-    const { skip = 0, limit = 10, ...rest } = getPostsDto;
+    const { skip = 0, limit = 10, sort = -1, ...rest } = getPostsDto;
 
     const filter = filterQueryByPosts(rest);
-    const options = { skip, limit, sort: { _id: -1 }, populate: ["tags", "series"] };
+    const options = { skip, limit, sort: { _id: sort }, populate: ["tags", "series"] };
 
     return this.postRepository.getAll(filter, POST_FIND_PROJECTION, options);
   }
@@ -154,7 +160,12 @@ export class PostService {
   }
 
   async getSibling(targetNid: number) {
-    return this.postRepository.getSibling(targetNid);
+    const [prev, next] = await Promise.all([
+      this.postRepository.getOne({ nid: { $lt: targetNid } }, POST_FIND_PROJECTION),
+      this.postRepository.getOne({ nid: { $gt: targetNid } }, POST_FIND_PROJECTION),
+    ]);
+
+    return { prev, next };
   }
 
   async existPostById(_id: string) {
