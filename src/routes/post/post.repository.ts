@@ -62,13 +62,4 @@ export class PostRepository extends BaseRepository<PostDocument> {
   async getById(_id: string) {
     return super.getById(_id, POST_FIND_PROJECTION, { populate: ["tags", "series"] });
   }
-
-  async getSibling(targetNid: number) {
-    const [prev, next] = await Promise.all([
-      this.getOne({ nid: { $lt: targetNid } }, POST_FIND_PROJECTION),
-      this.getOne({ nid: { $gt: targetNid } }, POST_FIND_PROJECTION),
-    ]);
-
-    return { prev, next };
-  }
 }
