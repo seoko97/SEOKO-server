@@ -2,7 +2,7 @@ import { Schema, Prop } from "@nestjs/mongoose";
 
 import { IsDateString, IsMongoId, IsNumber } from "class-validator";
 
-@Schema({ timestamps: true, _id: true })
+@Schema({ _id: true })
 export class BaseSchema {
   @IsMongoId()
   _id!: string;

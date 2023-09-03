@@ -13,14 +13,7 @@ export class PostController {
 
   @Post()
   async create(@Body() createPostDto: CreatePostDto) {
-    const post = await this.postService.create(createPostDto);
-
-    return post;
-  }
-
-  @Delete(":_id")
-  async delete(@Param("_id", ValidateObjectIdPipe) _id: string) {
-    await this.postService.delete(_id);
+    return this.postService.create(createPostDto);
   }
 
   @Put(":_id")
@@ -28,21 +21,24 @@ export class PostController {
     @Param("_id", ValidateObjectIdPipe) _id: string,
     @Body() updatePostDto: UpdatePostDto,
   ) {
-    const post = await this.postService.update(_id, updatePostDto);
+    return this.postService.update(_id, updatePostDto);
+  }
 
-    return post;
+  @Delete(":_id")
+  async delete(@Param("_id", ValidateObjectIdPipe) _id: string) {
+    return this.postService.delete(_id);
   }
 
   @Public()
   @Patch(":_id/like")
   async like(@Param("_id") _id: string, @Ip() ip: string) {
-    await this.postService.increaseToLikes(_id, ip);
+    return this.postService.increaseToLikes(_id, ip);
   }
 
   @Public()
   @Patch(":_id/unlike")
   async unlike(@Param("_id") _id: string, @Ip() ip: string) {
-    await this.postService.decreaseToLikes(_id, ip);
+    return this.postService.decreaseToLikes(_id, ip);
   }
 
   @Public()

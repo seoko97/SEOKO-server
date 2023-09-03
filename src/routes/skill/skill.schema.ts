@@ -9,7 +9,7 @@ import { SkillType } from "@/types";
 export type SkillDocument = Skill & Document;
 export type SkillModel = Model<SkillDocument>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Skill extends BaseSchema {
   @IsString()
   @Prop({ required: true, unique: true })

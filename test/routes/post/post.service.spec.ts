@@ -470,17 +470,16 @@ describe("PostService", () => {
     });
 
     it("성공 - 특정 게시글을 기준으로 이전/다음 게시글 조회", async () => {
-      const postRepositoryGetSiblingSpy: jest.SpyInstance = jest.spyOn(
-        postRepository,
-        "getSibling",
-      );
-      postRepositoryGetSiblingSpy.mockResolvedValueOnce([POST, POST]);
+      const postRepositoryGetSiblingSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
+      postRepositoryGetSiblingSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetSiblingSpy.mockResolvedValueOnce(POST);
 
       const post = await postService.getSibling(POST.nid);
 
-      expect(post).toEqual([POST, POST]);
-      expect(postRepositoryGetSiblingSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetSiblingSpy).toBeCalledWith(POST.nid);
+      expect(post).toEqual({ prev: POST, next: POST });
+      expect(postRepositoryGetSiblingSpy).toBeCalledTimes(2);
+      expect(postRepositoryGetSiblingSpy).toBeCalledWith({ nid: { $gt: POST.nid } });
+      expect(postRepositoryGetSiblingSpy).toBeCalledWith({ nid: { $lt: POST.nid } });
     });
   });
 });

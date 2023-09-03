@@ -58,7 +58,7 @@ export class AuthService {
     const tokenName = isRefresh ? REFRESH_HEADER : ACCESS_HEADER;
 
     const cookieOptions: CookieOptions = {
-      httpOnly: true,
+      httpOnly: isRefresh,
       maxAge: Number(COOKIE_MAX_AGE),
       secure: true,
     };

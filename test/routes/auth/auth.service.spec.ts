@@ -115,7 +115,7 @@ describe("AuthService", () => {
 
       expect(res.cookie).toHaveBeenCalledTimes(1);
       expect(res.cookie).toHaveBeenCalledWith(authConstantProvider.ACCESS_HEADER, TOKEN_STUB, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: Number(authConstantProvider.COOKIE_MAX_AGE),
         secure: true,
       });

@@ -9,7 +9,7 @@ import { Post } from "@/routes/post/post.schema";
 export type SeriesDocument = Series & Document;
 export type SeriesModel = Model<SeriesDocument>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Series extends BaseSchema {
   @IsString()
   @Prop({ required: true, unique: true })

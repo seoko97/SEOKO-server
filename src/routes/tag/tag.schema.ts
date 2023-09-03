@@ -9,7 +9,7 @@ import { Post } from "@/routes/post/post.schema";
 export type TagDocument = Tag & Document;
 export type TagModel = Model<TagDocument>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Tag extends BaseSchema {
   @IsString()
   @Prop({ required: true, unique: true })
