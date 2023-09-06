@@ -146,7 +146,9 @@ export class PostService {
   async getByNumId(nid: number, ip: string) {
     const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: [ip, "$likes"] } };
 
-    const post = await this.postRepository.getOne({ nid }, projection);
+    const post = await this.postRepository.getOne({ nid }, projection, {
+      populate: ["tags", "series"],
+    });
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
@@ -160,9 +162,11 @@ export class PostService {
   }
 
   async getSibling(targetNid: number) {
+    const projection = { _id: 1, nid: 1, title: 1 };
+
     const [prev, next] = await Promise.all([
-      this.postRepository.getOne({ nid: { $lt: targetNid } }, POST_FIND_PROJECTION),
-      this.postRepository.getOne({ nid: { $gt: targetNid } }, POST_FIND_PROJECTION),
+      this.postRepository.getOne({ nid: { $lt: targetNid } }, projection),
+      this.postRepository.getOne({ nid: { $gt: targetNid } }, projection),
     ]);
 
     return { prev, next };

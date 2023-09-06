@@ -51,10 +51,15 @@ export class PostController {
   @Get(":nid")
   async getPost(@Param("nid") nid: number, @Ip() ip: string) {
     const post = await this.postService.getByNumId(nid, ip);
-    const sibling = await this.postService.getSibling(nid);
 
     await this.postService.increaseToViews(post._id, ip);
 
-    return { post, sibling };
+    return post;
+  }
+
+  @Public()
+  @Get(":nid/sibling")
+  async getSiblingPost(@Param("nid") nid: number) {
+    return this.postService.getSibling(nid);
   }
 }

@@ -89,25 +89,36 @@ describe("PostController", () => {
       };
 
       const serviceGetByNumIdSpy: jest.SpyInstance = jest.spyOn(service, "getByNumId");
-      const serviceGetSiblingSpy: jest.SpyInstance = jest.spyOn(service, "getSibling");
       const serviceIncreaseViewCountSpy: jest.SpyInstance = jest.spyOn(service, "increaseToViews");
 
       serviceGetByNumIdSpy.mockResolvedValueOnce(POST_TO_RESULT);
-      serviceGetSiblingSpy.mockResolvedValueOnce([POST_STUB, POST_STUB]);
       serviceIncreaseViewCountSpy.mockResolvedValueOnce(undefined);
 
       const result = await controller.getPost(POST_STUB.nid, "ip");
 
-      expect(result).toEqual({ post: POST_TO_RESULT, sibling: [POST_STUB, POST_STUB] });
+      expect(result).toEqual(POST_TO_RESULT);
 
       expect(serviceGetByNumIdSpy).toBeCalledTimes(1);
       expect(serviceGetByNumIdSpy).toBeCalledWith(POST_STUB.nid, "ip");
 
-      expect(serviceGetSiblingSpy).toBeCalledTimes(1);
-      expect(serviceGetSiblingSpy).toBeCalledWith(POST_STUB.nid);
-
       expect(serviceIncreaseViewCountSpy).toBeCalledTimes(1);
       expect(serviceIncreaseViewCountSpy).toBeCalledWith(POST_STUB._id, "ip");
+    });
+
+    it("이전/다음 게시글 조회", async () => {
+      const POST_TO_RESULT = {
+        prev: POST_STUB,
+        next: POST_STUB,
+      };
+
+      const serviceGetSiblingSpy: jest.SpyInstance = jest.spyOn(service, "getSibling");
+      serviceGetSiblingSpy.mockResolvedValueOnce(POST_TO_RESULT);
+
+      const result = await controller.getSiblingPost(POST_STUB.nid);
+
+      expect(result).toEqual(POST_TO_RESULT);
+      expect(serviceGetSiblingSpy).toBeCalledTimes(1);
+      expect(serviceGetSiblingSpy).toBeCalledWith(POST_STUB.nid);
     });
   });
 

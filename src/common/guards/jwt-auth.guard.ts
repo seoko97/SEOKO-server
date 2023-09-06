@@ -75,4 +75,5 @@ export class AccessJwtAuthGuard extends generateJwtAuthGuard(EJwtTokenType.ACCES
   }
 }
 
-export const RefreshJwtAuthGuard = generateJwtAuthGuard(EJwtTokenType.REFRESH);
+@Injectable()
+export class RefreshJwtAuthGuard extends generateJwtAuthGuard(EJwtTokenType.REFRESH) {}
