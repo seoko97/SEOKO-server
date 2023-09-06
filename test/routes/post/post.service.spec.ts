@@ -450,12 +450,13 @@ describe("PostService", () => {
       postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
 
       const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: ["ip", "$likes"] } };
+      const options = { populate: ["tags", "series"] };
 
       const post = await postService.getByNumId(POST.nid, "ip");
 
       expect(post).toEqual(POST);
       expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: POST.nid }, projection);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: POST.nid }, projection, options);
     });
 
     it("성공 - Object id로 조회", async () => {
@@ -470,16 +471,18 @@ describe("PostService", () => {
     });
 
     it("성공 - 특정 게시글을 기준으로 이전/다음 게시글 조회", async () => {
-      const postRepositoryGetSiblingSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
-      postRepositoryGetSiblingSpy.mockResolvedValueOnce(POST);
-      postRepositoryGetSiblingSpy.mockResolvedValueOnce(POST);
+      const postRepositoryGetOneSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+
+      const projection = { _id: 1, nid: 1, title: 1 };
 
       const post = await postService.getSibling(POST.nid);
 
       expect(post).toEqual({ prev: POST, next: POST });
-      expect(postRepositoryGetSiblingSpy).toBeCalledTimes(2);
-      expect(postRepositoryGetSiblingSpy).toBeCalledWith({ nid: { $gt: POST.nid } });
-      expect(postRepositoryGetSiblingSpy).toBeCalledWith({ nid: { $lt: POST.nid } });
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(2);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: { $gt: POST.nid } }, projection);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: { $lt: POST.nid } }, projection);
     });
   });
 });
