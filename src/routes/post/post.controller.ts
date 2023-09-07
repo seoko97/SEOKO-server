@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Ip, Param, Patch, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
-import { ValidateObjectIdPipe } from "@/common/pipes/validate-objectid.pipe";
+import { RealIp } from "@/common/decorators/RealIp.decorator";
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
@@ -16,29 +16,26 @@ export class PostController {
     return this.postService.create(createPostDto);
   }
 
-  @Put(":_id")
-  async update(
-    @Param("_id", ValidateObjectIdPipe) _id: string,
-    @Body() updatePostDto: UpdatePostDto,
-  ) {
-    return this.postService.update(_id, updatePostDto);
+  @Put(":nid")
+  async update(@Param("nid") nid: number, @Body() updatePostDto: UpdatePostDto) {
+    return this.postService.update(nid, updatePostDto);
   }
 
-  @Delete(":_id")
-  async delete(@Param("_id", ValidateObjectIdPipe) _id: string) {
-    return this.postService.delete(_id);
+  @Delete(":nid")
+  async delete(@Param("nid") nid: number) {
+    return this.postService.delete(nid);
   }
 
   @Public()
-  @Patch(":_id/like")
-  async like(@Param("_id") _id: string, @Ip() ip: string) {
-    return this.postService.increaseToLikes(_id, ip);
+  @Patch(":nid/like")
+  async like(@Param("nid") nid: number, @RealIp() ip: string) {
+    return this.postService.increaseToLikes(nid, ip);
   }
 
   @Public()
-  @Patch(":_id/unlike")
-  async unlike(@Param("_id") _id: string, @Ip() ip: string) {
-    return this.postService.decreaseToLikes(_id, ip);
+  @Patch(":nid/unlike")
+  async unlike(@Param("nid") nid: number, @RealIp() ip: string) {
+    return this.postService.decreaseToLikes(nid, ip);
   }
 
   @Public()
@@ -49,10 +46,10 @@ export class PostController {
 
   @Public()
   @Get(":nid")
-  async getPost(@Param("nid") nid: number, @Ip() ip: string) {
+  async getPost(@Param("nid") nid: number, @RealIp() ip: string) {
     const post = await this.postService.getByNumId(nid, ip);
 
-    await this.postService.increaseToViews(post._id, ip);
+    await this.postService.increaseToViews(nid, ip);
 
     return post;
   }
