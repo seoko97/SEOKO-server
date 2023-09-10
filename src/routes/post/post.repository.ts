@@ -43,20 +43,20 @@ export class PostRepository extends BaseRepository<PostDocument> {
     );
   }
 
-  async increaseToLikes(postId: string, ip: string) {
-    return this.postModel.updateOne({ _id: postId }, { $push: { likes: ip } });
+  async increaseToLikes(nid: number, ip: string) {
+    return this.postModel.updateOne({ nid }, { $push: { likes: ip } });
   }
 
-  async decreaseToLikes(postId: string, ip: string) {
-    return this.postModel.updateOne({ _id: postId }, { $pull: { likes: ip } });
+  async decreaseToLikes(nid: number, ip: string) {
+    return this.postModel.updateOne({ nid }, { $pull: { likes: ip } });
   }
 
-  async increaseToViews(postId: string, ip: string) {
-    return this.postModel.updateOne({ _id: postId }, { $push: { views: ip } });
+  async increaseToViews(nid: number, ip: string) {
+    return this.postModel.updateOne({ nid }, { $push: { views: ip } });
   }
 
-  async isViewed(postId: string, ip: string) {
-    return this.postModel.exists({ _id: postId, views: { $in: ip } });
+  async isViewed(nid: number, ip: string) {
+    return this.postModel.exists({ nid, views: { $in: ip } });
   }
 
   async getById(_id: string) {

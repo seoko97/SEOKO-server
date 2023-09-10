@@ -1,10 +1,13 @@
 import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
 
+import { FilterQuery } from "mongoose";
+
 import { Transactional } from "@/common/decorators/transaction.decorator";
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
 import { PostRepository } from "@/routes/post/post.repository";
+import { PostDocument } from "@/routes/post/post.schema";
 import { SeriesService } from "@/routes/series/series.service";
 import { TagService } from "@/routes/tag/tag.service";
 import { POST_ERROR, POST_FIND_PROJECTION } from "@/utils/constants";
@@ -42,8 +45,9 @@ export class PostService {
   }
 
   @Transactional()
-  async delete(_id: string) {
-    const post = await this.postRepository.getById(_id);
+  async delete(nid: number) {
+    const post = await this.postRepository.getOne({ nid });
+    const _id = post._id;
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
@@ -59,10 +63,11 @@ export class PostService {
   }
 
   @Transactional()
-  async update(_id: string, updatePostDto: UpdatePostDto) {
+  async update(nid: number, updatePostDto: UpdatePostDto) {
     const { addTags = [], deleteTags = [], series: seriesName, ...rest } = updatePostDto;
 
-    const post = await this.postRepository.getById(_id);
+    const post = await this.postRepository.getOne({ nid });
+    const _id = post._id;
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
@@ -94,12 +99,12 @@ export class PostService {
       throw new BadRequestException(error?.massage || POST_ERROR.FAIL_UPDATE);
     }
 
-    return this.postRepository.getById(_id);
+    return this.postRepository.getOne({ nid });
   }
 
   @Transactional()
-  async increaseToLikes(postId: string, ip: string) {
-    const { nid } = await this.existPostById(postId);
+  async increaseToLikes(nid: number, ip: string) {
+    await this.existPost({ nid });
 
     const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: [ip, "$likes"] } };
 
@@ -109,29 +114,29 @@ export class PostService {
       throw new BadRequestException(POST_ERROR.ALREADY_LIKED);
     }
 
-    await this.postRepository.increaseToLikes(postId, ip);
+    await this.postRepository.increaseToLikes(nid, ip);
 
     return nid;
   }
 
   @Transactional()
-  async decreaseToLikes(postId: string, ip: string) {
-    const { nid } = await this.existPostById(postId);
+  async decreaseToLikes(nid: number, ip: string) {
+    await this.existPost({ nid });
 
-    await this.postRepository.decreaseToLikes(postId, ip);
+    await this.postRepository.decreaseToLikes(nid, ip);
 
     return nid;
   }
 
   @Transactional()
-  async increaseToViews(postId: string, ip: string) {
-    await this.existPostById(postId);
+  async increaseToViews(nid: number, ip: string) {
+    await this.existPost({ nid });
 
-    const post = await this.postRepository.isViewed(postId, ip);
+    const post = await this.postRepository.isViewed(nid, ip);
 
     if (post) return;
 
-    await this.postRepository.increaseToViews(postId, ip);
+    await this.postRepository.increaseToViews(nid, ip);
   }
 
   async getAll(getPostsDto: GetPostsDto) {
@@ -172,13 +177,13 @@ export class PostService {
     return { prev, next };
   }
 
-  async existPostById(_id: string) {
-    const post = await this.postRepository.getById(_id);
+  async existPost(filter: FilterQuery<PostDocument>) {
+    const post = await this.postRepository.getOne(filter);
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
     }
 
-    return post;
+    return true;
   }
 }

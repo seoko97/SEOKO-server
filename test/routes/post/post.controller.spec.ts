@@ -46,12 +46,12 @@ describe("PostController", () => {
       const serviceUpdateSpy: jest.SpyInstance = jest.spyOn(service, "update");
       serviceUpdateSpy.mockResolvedValueOnce(POST_STUB);
 
-      const postId = POST_STUB._id;
-      const result = await controller.update(postId, POST_UPDATE_STUB);
+      const nid = POST_STUB.nid;
+      const result = await controller.update(nid, POST_UPDATE_STUB);
 
       expect(result).toEqual(POST_STUB);
       expect(serviceUpdateSpy).toBeCalledTimes(1);
-      expect(serviceUpdateSpy).toBeCalledWith(postId, POST_UPDATE_STUB);
+      expect(serviceUpdateSpy).toBeCalledWith(nid, POST_UPDATE_STUB);
     });
   });
 
@@ -60,11 +60,13 @@ describe("PostController", () => {
       const serviceDeleteSpy: jest.SpyInstance = jest.spyOn(service, "delete");
       serviceDeleteSpy.mockResolvedValueOnce(undefined);
 
-      const result = await controller.delete(POST_STUB._id);
+      const nid = POST_STUB.nid;
+
+      const result = await controller.delete(nid);
 
       expect(result).toBeUndefined();
       expect(serviceDeleteSpy).toBeCalledTimes(1);
-      expect(serviceDeleteSpy).toBeCalledWith(POST_STUB._id);
+      expect(serviceDeleteSpy).toBeCalledWith(nid);
     });
   });
 
@@ -81,6 +83,8 @@ describe("PostController", () => {
     });
 
     it("number id를 통한 조회", async () => {
+      const nid = POST_STUB.nid;
+
       const POST_TO_RESULT = {
         ...POST_STUB,
         likeCount: 0,
@@ -94,15 +98,15 @@ describe("PostController", () => {
       serviceGetByNumIdSpy.mockResolvedValueOnce(POST_TO_RESULT);
       serviceIncreaseViewCountSpy.mockResolvedValueOnce(undefined);
 
-      const result = await controller.getPost(POST_STUB.nid, "ip");
+      const result = await controller.getPost(nid, "ip");
 
       expect(result).toEqual(POST_TO_RESULT);
 
       expect(serviceGetByNumIdSpy).toBeCalledTimes(1);
-      expect(serviceGetByNumIdSpy).toBeCalledWith(POST_STUB.nid, "ip");
+      expect(serviceGetByNumIdSpy).toBeCalledWith(nid, "ip");
 
       expect(serviceIncreaseViewCountSpy).toBeCalledTimes(1);
-      expect(serviceIncreaseViewCountSpy).toBeCalledWith(POST_STUB._id, "ip");
+      expect(serviceIncreaseViewCountSpy).toBeCalledWith(nid, "ip");
     });
 
     it("이전/다음 게시글 조회", async () => {
@@ -127,22 +131,26 @@ describe("PostController", () => {
       const serviceIncreaseLikeCountSpy: jest.SpyInstance = jest.spyOn(service, "increaseToLikes");
       serviceIncreaseLikeCountSpy.mockResolvedValueOnce(undefined);
 
-      const result = await controller.like(POST_STUB._id, "ip");
+      const nid = POST_STUB.nid;
+
+      const result = await controller.like(nid, "ip");
 
       expect(result).toBeUndefined();
       expect(serviceIncreaseLikeCountSpy).toBeCalledTimes(1);
-      expect(serviceIncreaseLikeCountSpy).toBeCalledWith(POST_STUB._id, "ip");
+      expect(serviceIncreaseLikeCountSpy).toBeCalledWith(nid, "ip");
     });
 
     it("감소", async () => {
       const serviceDecreaseLikeCountSpy: jest.SpyInstance = jest.spyOn(service, "decreaseToLikes");
       serviceDecreaseLikeCountSpy.mockResolvedValueOnce(undefined);
 
-      const result = await controller.unlike(POST_STUB._id, "ip");
+      const nid = POST_STUB.nid;
+
+      const result = await controller.unlike(nid, "ip");
 
       expect(result).toBeUndefined();
       expect(serviceDecreaseLikeCountSpy).toBeCalledTimes(1);
-      expect(serviceDecreaseLikeCountSpy).toBeCalledWith(POST_STUB._id, "ip");
+      expect(serviceDecreaseLikeCountSpy).toBeCalledWith(nid, "ip");
     });
   });
 });

@@ -125,8 +125,9 @@ describe("PostService", () => {
 
   describe("게시글 수정", () => {
     const postId = POST_STUB._id;
+    const nid = POST_STUB.nid;
 
-    let postRepositoryGetByIdSpy: jest.SpyInstance;
+    let postRepositoryGetOneSpy: jest.SpyInstance;
     let postRepositoryUpdateSpy: jest.SpyInstance;
     let postRepositoryPushTagsSpy: jest.SpyInstance;
     let postRepositoryPullTagsSpy: jest.SpyInstance;
@@ -136,7 +137,7 @@ describe("PostService", () => {
     let seriesServicePullPostIdSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      postRepositoryGetByIdSpy = jest.spyOn(postRepository, "getById");
+      postRepositoryGetOneSpy = jest.spyOn(postRepository, "getOne");
       postRepositoryUpdateSpy = jest.spyOn(postRepository, "update");
       postRepositoryPushTagsSpy = jest.spyOn(postRepository, "pushTags");
       postRepositoryPullTagsSpy = jest.spyOn(postRepository, "pullTags");
@@ -149,8 +150,8 @@ describe("PostService", () => {
     it("성공", async () => {
       const POST = { ...POST_STUB };
 
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
       postRepositoryUpdateSpy.mockResolvedValueOnce(POST);
       postRepositoryPushTagsSpy.mockResolvedValueOnce(undefined);
       postRepositoryPullTagsSpy.mockResolvedValueOnce(undefined);
@@ -161,12 +162,12 @@ describe("PostService", () => {
 
       const { deleteTags, addTags, ...rest } = POST_UPDATE_STUB;
 
-      const post = await postService.update(postId, { ...POST_UPDATE_STUB });
+      const post = await postService.update(nid, { ...POST_UPDATE_STUB });
 
       expect(post).toEqual(POST);
-      expect(postRepositoryGetByIdSpy).toBeCalledTimes(2);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(postId);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(postId);
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(2);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
 
       expect(postRepositoryUpdateSpy).toBeCalledTimes(1);
       expect(postRepositoryUpdateSpy).toBeCalledWith(postId, { ...rest, series: SERIES_STUB });
@@ -191,14 +192,12 @@ describe("PostService", () => {
     });
 
     it("실패 - 존재하지 않는 게시글", async () => {
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(null);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(null);
 
-      const POST = { ...POST_STUB };
+      await expect(postService.update(nid, { ...POST_UPDATE_STUB })).rejects.toThrowError();
 
-      await expect(postService.update(postId, { ...POST_UPDATE_STUB })).rejects.toThrowError();
-
-      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
       expect(postRepositoryUpdateSpy).toBeCalledTimes(0);
       expect(postRepositoryPushTagsSpy).toBeCalledTimes(0);
       expect(postRepositoryPullTagsSpy).toBeCalledTimes(0);
@@ -218,18 +217,18 @@ describe("PostService", () => {
 
       const { deleteTags: _, addTags: __, ...rest } = POST_UPDATE;
 
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
       postRepositoryUpdateSpy.mockRejectedValueOnce(new Error(POST_ERROR.FAIL_UPDATE));
 
       try {
-        await postService.update(postId, POST_UPDATE);
+        await postService.update(nid, POST_UPDATE);
       } catch (e) {
         expect(e).toBeInstanceOf(BadRequestException);
         expect(e.status).toEqual(400);
         expect(e.message).toEqual(POST_ERROR.FAIL_UPDATE);
 
-        expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
-        expect(postRepositoryGetByIdSpy).toBeCalledWith(postId);
+        expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+        expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
 
         expect(postRepositoryUpdateSpy).toBeCalledTimes(1);
         expect(postRepositoryUpdateSpy).toBeCalledWith(postId, rest);
@@ -245,13 +244,16 @@ describe("PostService", () => {
   });
 
   describe("게시글 삭제", () => {
-    let postRepositoryGetByIdSpy: jest.SpyInstance;
+    const postId = POST_STUB._id;
+    const nid = POST_STUB.nid;
+
+    let postRepositoryGetOneSpy: jest.SpyInstance;
     let postRepositoryDeleteSpy: jest.SpyInstance;
     let seriesServicePullPostIdSpy: jest.SpyInstance;
     let tagServicePullPostIdInTagsSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      postRepositoryGetByIdSpy = jest.spyOn(postRepository, "getById");
+      postRepositoryGetOneSpy = jest.spyOn(postRepository, "getOne");
       postRepositoryDeleteSpy = jest.spyOn(postRepository, "delete");
       seriesServicePullPostIdSpy = jest.spyOn(seriesService, "pullPostIdInSeries");
       tagServicePullPostIdInTagsSpy = jest.spyOn(tagService, "pullPostIdInTags");
@@ -260,17 +262,15 @@ describe("PostService", () => {
     it("성공", async () => {
       const POST = { ...POST_STUB };
 
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
       postRepositoryDeleteSpy.mockResolvedValueOnce(undefined);
       seriesServicePullPostIdSpy.mockResolvedValueOnce(undefined);
       tagServicePullPostIdInTagsSpy.mockResolvedValueOnce(undefined);
 
-      const postId = POST._id;
+      await postService.delete(nid);
 
-      await postService.delete(postId);
-
-      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(postId);
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
 
       expect(postRepositoryDeleteSpy).toBeCalledTimes(1);
       expect(postRepositoryDeleteSpy).toBeCalledWith(postId);
@@ -287,6 +287,8 @@ describe("PostService", () => {
   });
 
   describe("게시글 좋아요", () => {
+    const nid = POST_STUB.nid;
+
     const POST = { ...POST_STUB };
 
     const POST_TO_RESULT = {
@@ -296,10 +298,10 @@ describe("PostService", () => {
       isLike: false,
     };
 
-    let postRepositoryGetByIdSpy: jest.SpyInstance;
+    let postRepositoryGetOneSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      postRepositoryGetByIdSpy = jest.spyOn(postRepository, "getById");
+      postRepositoryGetOneSpy = jest.spyOn(postRepository, "getOne");
     });
 
     it("증가", async () => {
@@ -310,19 +312,18 @@ describe("PostService", () => {
       const postRepositoryGetOneSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
 
       postRepositoryGetOneSpy.mockResolvedValueOnce(POST_TO_RESULT);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
       postRepositoryIncreaseLikeSpy.mockResolvedValueOnce(undefined);
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
 
       const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: ["ip", "$likes"] } };
 
-      await postService.increaseToLikes(POST._id, "ip");
+      await postService.increaseToLikes(nid, "ip");
 
       expect(postRepositoryIncreaseLikeSpy).toBeCalledTimes(1);
-      expect(postRepositoryIncreaseLikeSpy).toBeCalledWith(POST._id, "ip");
-      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: POST.nid }, projection);
-      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
+      expect(postRepositoryIncreaseLikeSpy).toBeCalledWith(nid, "ip");
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(2);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid }, projection);
     });
 
     it("감소", async () => {
@@ -332,18 +333,19 @@ describe("PostService", () => {
       );
 
       postRepositoryDecreaseLikeSpy.mockResolvedValueOnce(undefined);
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
 
-      await postService.decreaseToLikes(POST._id, "ip");
+      await postService.decreaseToLikes(nid, "ip");
 
       expect(postRepositoryDecreaseLikeSpy).toBeCalledTimes(1);
-      expect(postRepositoryDecreaseLikeSpy).toBeCalledWith(POST._id, "ip");
-      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
+      expect(postRepositoryDecreaseLikeSpy).toBeCalledWith(nid, "ip");
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
     });
   });
 
   describe("게시글 조회수", () => {
+    const nid = POST_STUB.nid;
     const POST = { ...POST_STUB };
 
     it("증가", async () => {
@@ -351,17 +353,17 @@ describe("PostService", () => {
         postRepository,
         "increaseToViews",
       );
-      const postRepositoryGetByIdSpy: jest.SpyInstance = jest.spyOn(postRepository, "getById");
+      const postRepositoryGetOneSpy: jest.SpyInstance = jest.spyOn(postRepository, "getOne");
 
       postRepositoryIncreaseViewsSpy.mockResolvedValueOnce(undefined);
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
 
-      await postService.increaseToViews(POST._id, "ip");
+      await postService.increaseToViews(nid, "ip");
 
       expect(postRepositoryIncreaseViewsSpy).toBeCalledTimes(1);
-      expect(postRepositoryIncreaseViewsSpy).toBeCalledWith(POST._id, "ip");
-      expect(postRepositoryGetByIdSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetByIdSpy).toBeCalledWith(POST._id);
+      expect(postRepositoryIncreaseViewsSpy).toBeCalledWith(nid, "ip");
+      expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
     });
   });
 
