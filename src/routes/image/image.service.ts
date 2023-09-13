@@ -27,9 +27,11 @@ export class ImageService {
     try {
       const { originalname, buffer } = image;
 
+      const filename = decodeURI(originalname).replaceAll(" ", "_");
+
       const imageRes = await firstValueFrom(
         this.httpService.put(
-          `${this.IMAGE_UPLOAD_URL}/appkeys/${this.IMAGE_APP_KEY}/images?path=/${type}/${originalname}&overwrite=true`,
+          `${this.IMAGE_UPLOAD_URL}/appkeys/${this.IMAGE_APP_KEY}/images?path=/${type}/${filename}&overwrite=true`,
           buffer,
           this.IMAGE_OPTION,
         ),
@@ -37,7 +39,7 @@ export class ImageService {
 
       return this.httpsTransducer(imageRes.data.file.url);
     } catch (error) {
-      new BadRequestException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
