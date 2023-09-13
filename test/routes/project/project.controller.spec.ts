@@ -42,15 +42,17 @@ describe("ProjectController", () => {
   });
 
   describe("프로젝트 수정", () => {
+    const nid = PROJECT_STUB.nid;
+
     it("성공", async () => {
       const serviceUpdateSpy: jest.SpyInstance = jest.spyOn(service, "update");
       serviceUpdateSpy.mockResolvedValueOnce(PROJECT_STUB);
 
-      const result = await controller.update("1", PROJECT_STUB);
+      const result = await controller.update(nid, PROJECT_STUB);
 
       expect(result).toEqual(PROJECT_STUB);
       expect(serviceUpdateSpy).toBeCalledTimes(1);
-      expect(serviceUpdateSpy).toBeCalledWith("1", PROJECT_STUB);
+      expect(serviceUpdateSpy).toBeCalledWith(nid, PROJECT_STUB);
     });
   });
 
