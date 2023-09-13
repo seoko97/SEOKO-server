@@ -47,9 +47,9 @@ export class PostController {
   @Public()
   @Get(":nid")
   async getPost(@Param("nid") nid: number, @RealIp() ip: string) {
-    const post = await this.postService.getByNumId(nid, ip);
-
     await this.postService.increaseToViews(nid, ip);
+
+    const post = await this.postService.getByNumId(nid, ip);
 
     return post;
   }
