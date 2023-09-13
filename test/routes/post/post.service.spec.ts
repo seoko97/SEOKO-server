@@ -270,7 +270,7 @@ describe("PostService", () => {
       await postService.delete(nid);
 
       expect(postRepositoryGetOneSpy).toBeCalledTimes(1);
-      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid }, {}, { populate: ["tags", "series"] });
 
       expect(postRepositoryDeleteSpy).toBeCalledTimes(1);
       expect(postRepositoryDeleteSpy).toBeCalledWith(postId);

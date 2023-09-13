@@ -13,24 +13,16 @@ export class ProjectService {
     return this.projectRepository.create(dto);
   }
 
-  async update(_id: string, dto: UpdateProjectDto) {
-    const project = await this.projectRepository.getById(_id);
-
-    if (!project) {
-      throw new BadRequestException(PROJECT_ERROR.NOT_FOUND);
-    }
+  async update(nid: number, dto: UpdateProjectDto) {
+    const { _id } = await this.getByNumId(nid);
 
     return this.projectRepository.findOneAndUpdate({ _id }, dto);
   }
 
-  async delete(_id: string) {
-    const project = await this.projectRepository.getById(_id);
+  async delete(nid: number) {
+    const { _id } = await this.getByNumId(nid);
 
-    if (!project) {
-      throw new BadRequestException(PROJECT_ERROR.NOT_FOUND);
-    }
-
-    return this.projectRepository.delete(_id);
+    return this.projectRepository.findOneAndDelete({ _id });
   }
 
   async getByNumId(nid: number) {
@@ -44,6 +36,6 @@ export class ProjectService {
   }
 
   async getAll() {
-    return this.projectRepository.getAll();
+    return this.projectRepository.getAll({}, {}, { sort: { _id: -1 } });
   }
 }

@@ -46,7 +46,7 @@ export class PostService {
 
   @Transactional()
   async delete(nid: number) {
-    const post = await this.postRepository.getOne({ nid });
+    const post = await this.postRepository.getOne({ nid }, {}, { populate: ["tags", "series"] });
     const _id = post._id;
 
     if (!post) {

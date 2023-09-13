@@ -36,7 +36,7 @@ export class SeriesRepository extends BaseRepository<SeriesDocument> {
   }
 
   async getAll() {
-    return this.seriesModel.find({}, { ...SERIES_FIND_PROJECTION, posts: 0 });
+    return this.seriesModel.find({}, { ...SERIES_FIND_PROJECTION });
   }
 
   async getById(_id: string) {

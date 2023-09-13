@@ -28,8 +28,8 @@ export class SeriesService {
   }
 
   @Transactional()
-  async update(_id: string, updateSeriesDto: UpdateSeriesDto) {
-    await this.checkSeriesById(_id);
+  async update(nid: number, updateSeriesDto: UpdateSeriesDto) {
+    const { _id } = await this.getByNumId(nid);
 
     return this.seriesRepository.findOneAndUpdate({ _id }, updateSeriesDto);
   }
@@ -55,8 +55,8 @@ export class SeriesService {
   }
 
   @Transactional()
-  async delete(_id: string) {
-    await this.checkSeriesById(_id);
+  async delete(nid: number) {
+    const { _id } = await this.getByNumId(nid);
 
     await this.postRepository.deleteSeriesInPosts(_id);
     await this.seriesRepository.delete(_id);
@@ -80,15 +80,5 @@ export class SeriesService {
     }
 
     return series;
-  }
-
-  async checkSeriesById(_id: string) {
-    const series = await this.seriesRepository.getById(_id);
-
-    if (!series) {
-      throw new BadRequestException(SERIES_ERROR.NOT_FOUND);
-    }
-
-    return true;
   }
 }

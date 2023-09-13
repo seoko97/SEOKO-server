@@ -45,80 +45,81 @@ describe("ProjectService", () => {
 
   describe("프로젝트 수정", () => {
     const _id = PROJECT_STUB._id;
+    const nid = PROJECT_STUB.nid;
 
-    let repositoryGetByIdSpy: jest.SpyInstance;
+    let repositoryGetOneSpy: jest.SpyInstance;
     let repositoryFindOneAndUpdateSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryGetByIdSpy = jest.spyOn(repository, "getById");
+      repositoryGetOneSpy = jest.spyOn(repository, "getOne");
       repositoryFindOneAndUpdateSpy = jest.spyOn(repository, "findOneAndUpdate");
     });
 
     it("성공", async () => {
-      repositoryGetByIdSpy.mockResolvedValueOnce(PROJECT_STUB);
+      repositoryGetOneSpy.mockResolvedValueOnce(PROJECT_STUB);
       repositoryFindOneAndUpdateSpy.mockResolvedValueOnce(PROJECT_STUB);
 
-      const result = await service.update(_id, UPDATE_PROJECT_STUB);
+      const result = await service.update(nid, UPDATE_PROJECT_STUB);
 
       expect(result).toEqual(PROJECT_STUB);
 
-      expect(repositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(_id);
+      expect(repositoryGetOneSpy).toHaveBeenCalledTimes(1);
+      expect(repositoryGetOneSpy).toBeCalledWith({ nid });
 
       expect(repositoryFindOneAndUpdateSpy).toHaveBeenCalledTimes(1);
       expect(repositoryFindOneAndUpdateSpy).toBeCalledWith({ _id }, UPDATE_PROJECT_STUB);
     });
 
     it("실패 - 존재하지 않는 프로젝트", async () => {
-      repositoryGetByIdSpy.mockResolvedValueOnce(null);
+      repositoryGetOneSpy.mockResolvedValueOnce(null);
 
-      await expect(service.update(_id, UPDATE_PROJECT_STUB)).rejects.toThrowError(
+      await expect(service.update(nid, UPDATE_PROJECT_STUB)).rejects.toThrowError(
         PROJECT_ERROR.NOT_FOUND,
       );
 
-      expect(repositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(_id);
+      expect(repositoryGetOneSpy).toHaveBeenCalledTimes(1);
+      expect(repositoryGetOneSpy).toBeCalledWith({ nid });
 
       expect(repositoryFindOneAndUpdateSpy).toHaveBeenCalledTimes(0);
     });
   });
 
   describe("프로젝트 삭제", () => {
-    let repositoryGetByIdSpy: jest.SpyInstance;
-    let repositoryDeleteSpy: jest.SpyInstance;
+    const _id = PROJECT_STUB._id;
+    const nid = PROJECT_STUB.nid;
+
+    let repositoryGetOneSpy: jest.SpyInstance;
+    let repositoryFindOneAndDeleteSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      repositoryGetByIdSpy = jest.spyOn(repository, "getById");
-      repositoryDeleteSpy = jest.spyOn(repository, "delete");
+      repositoryGetOneSpy = jest.spyOn(repository, "getOne");
+      repositoryFindOneAndDeleteSpy = jest.spyOn(repository, "findOneAndDelete");
     });
 
     it("성공", async () => {
-      repositoryGetByIdSpy = jest.spyOn(repository, "getById");
-      repositoryDeleteSpy = jest.spyOn(repository, "delete");
+      repositoryGetOneSpy.mockResolvedValueOnce(PROJECT_STUB);
+      repositoryFindOneAndDeleteSpy.mockResolvedValueOnce(PROJECT_STUB);
 
-      repositoryGetByIdSpy.mockResolvedValueOnce(PROJECT_STUB);
-      repositoryDeleteSpy.mockResolvedValueOnce(undefined);
+      const result = await service.delete(nid);
 
-      const result = await service.delete(PROJECT_STUB._id);
+      expect(result).toBe(PROJECT_STUB);
 
-      expect(result).toBeUndefined();
+      expect(repositoryGetOneSpy).toHaveBeenCalledTimes(1);
+      expect(repositoryGetOneSpy).toBeCalledWith({ nid });
 
-      expect(repositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(PROJECT_STUB._id);
-
-      expect(repositoryDeleteSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryDeleteSpy).toBeCalledWith(PROJECT_STUB._id);
+      expect(repositoryFindOneAndDeleteSpy).toHaveBeenCalledTimes(1);
+      expect(repositoryFindOneAndDeleteSpy).toBeCalledWith({ _id });
     });
 
     it("실패 - 존재하지 않는 프로젝트", async () => {
-      repositoryGetByIdSpy.mockResolvedValueOnce(null);
+      repositoryGetOneSpy.mockResolvedValueOnce(null);
 
-      await expect(service.delete(PROJECT_STUB._id)).rejects.toThrowError(PROJECT_ERROR.NOT_FOUND);
+      await expect(service.delete(nid)).rejects.toThrowError(PROJECT_ERROR.NOT_FOUND);
 
-      expect(repositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetByIdSpy).toBeCalledWith(PROJECT_STUB._id);
+      expect(repositoryGetOneSpy).toHaveBeenCalledTimes(1);
+      expect(repositoryGetOneSpy).toBeCalledWith({ nid });
 
-      expect(repositoryDeleteSpy).toHaveBeenCalledTimes(0);
+      expect(repositoryFindOneAndDeleteSpy).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -163,7 +164,7 @@ describe("ProjectService", () => {
       expect(result).toEqual([PROJECT_STUB]);
 
       expect(repositoryGetListSpy).toHaveBeenCalledTimes(1);
-      expect(repositoryGetListSpy).toBeCalledWith();
+      expect(repositoryGetListSpy).toBeCalledWith({}, {}, { sort: { _id: -1 } });
     });
   });
 });

@@ -27,6 +27,7 @@ const GET_POSTS_DTO_STUB: GetPostsDto = {
 
 const POST_UPDATE_STUB: UpdatePostDto = {
   ...POST_CREATE_STUB_WITHOUT_TAGS_AND_SERIES,
+  _id: "_id",
   series: "change_series",
   deleteTags: ["delete"],
   addTags: ["add"],

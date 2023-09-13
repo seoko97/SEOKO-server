@@ -6,6 +6,9 @@ import { IsOptionalCustom } from "@/common/decorators/is-optional.decorator";
 import { Post } from "@/routes/post/post.schema";
 
 export class UpdatePostDto extends PickType(Post, ["title", "content", "thumbnail"]) {
+  @IsString()
+  _id: string;
+
   @IsOptionalCustom(IsString())
   series?: string;
 
