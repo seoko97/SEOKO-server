@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
-import { ValidateObjectIdPipe } from "@/common/pipes/validate-objectid.pipe";
 import { CreateProjectDto } from "@/routes/project/dto/create-project.dto";
 import { UpdateProjectDto } from "@/routes/project/dto/update-project.dto";
 import { ProjectService } from "@/routes/project/project.service";
@@ -17,19 +16,16 @@ export class ProjectController {
     return project;
   }
 
-  @Put(":_id")
-  async update(
-    @Param("_id", ValidateObjectIdPipe) _id: string,
-    @Body() updateProjectDto: UpdateProjectDto,
-  ) {
-    const project = await this.projectService.update(_id, updateProjectDto);
+  @Put(":nid")
+  async update(@Param("nid") nid: number, @Body() updateProjectDto: UpdateProjectDto) {
+    const project = await this.projectService.update(nid, updateProjectDto);
 
     return project;
   }
 
-  @Delete(":_id")
-  async delete(@Param("_id", ValidateObjectIdPipe) _id: string) {
-    await this.projectService.delete(_id);
+  @Delete(":nid")
+  async delete(@Param("nid") nid: number) {
+    await this.projectService.delete(nid);
 
     return true;
   }
