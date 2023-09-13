@@ -1,5 +1,7 @@
 import { InternalServerErrorException } from "@nestjs/common";
 
+import { MongooseError } from "mongoose";
+
 import { CONNECTION_NOT_FOUND, TRANSACTION_SESSION } from "@/common/transaction/constants";
 import { ALS } from "@/common/transaction/core/AsyncLocalStorage";
 import { ConnectionStore } from "@/common/transaction/core/ConnectionStore";
@@ -19,17 +21,17 @@ function Transactional(): MethodDecorator {
 
         const session = await connection.startSession();
         als.set(TRANSACTION_SESSION, session);
+        session.startTransaction();
 
         try {
-          let result: any;
-
-          await session.withTransaction(async () => {
-            result = await originalMethod.apply(this, args);
-          });
-
+          const result = await originalMethod.apply(this, args);
+          await session.commitTransaction();
           return result;
-        } catch (error) {
-          throw error;
+        } catch (e) {
+          if (!(e instanceof MongooseError)) {
+            await session.abortTransaction();
+          }
+          throw e;
         } finally {
           session.endSession();
         }
