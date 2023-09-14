@@ -31,6 +31,10 @@ export class Project extends BaseSchema {
   @Prop({ required: true })
   github!: string;
 
+  @IsOptionalCustom(IsString())
+  @Prop({ required: false, default: null })
+  page: string | null;
+
   @IsDateString()
   @Prop({ required: true })
   start!: string;

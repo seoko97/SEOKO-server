@@ -10,4 +10,5 @@ export class CreateProjectDto extends PickType(Project, [
   "github",
   "start",
   "end",
+  "page",
 ]) {}
