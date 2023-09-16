@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Put } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
 import { UpdateSeriesDto } from "@/routes/series/dto/update-series.dto";
@@ -24,7 +24,7 @@ export class SeriesController {
     return series;
   }
 
-  @Patch(":nid")
+  @Put(":nid")
   async update(@Param("nid") nid: number, @Body() updateSeriesDto: UpdateSeriesDto) {
     const series = await this.seriesService.update(nid, updateSeriesDto);
 
