@@ -4,6 +4,9 @@ import {
   ClientSession,
   MongooseQueryMiddleware,
   MongooseDocumentMiddleware,
+  Document,
+  Query,
+  Aggregate,
 } from "mongoose";
 
 import {
@@ -35,7 +38,13 @@ function preCb(this: any, next: any) {
   const als = new ALS();
   const session = als.get<ClientSession>(TRANSACTION_SESSION);
 
-  if (session) this.$session?.(session) || this.session?.(session);
+  if (this instanceof Document) {
+    this.$session() || this.$session(session);
+  } else if (this instanceof Query) {
+    this.getOptions().session || this.session(session);
+  } else if (this instanceof Aggregate) {
+    this.options.session || this.session(session);
+  }
 
   next();
 }
