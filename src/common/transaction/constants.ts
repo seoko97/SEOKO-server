@@ -13,6 +13,7 @@ const middlewareGroups = {
     "updateMany",
     "find",
     "findOne",
+    "create",
     "findById",
     "findOneAndDelete",
     "findOneAndUpdate",
