@@ -11,6 +11,8 @@ const SERIES_FIND_PROJECTION = {
   thumbnail: 1,
   posts: 1,
   postCount: { $size: "$posts" },
+  updatedAt: 1,
+  createdAt: 1,
 };
 
 const SERIES_FIND_OPTIONS = {
