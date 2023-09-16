@@ -1,4 +1,4 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { PostDocument } from "@/routes/post/post.schema";
@@ -8,8 +8,8 @@ const filterQueryByPosts = (dto: GetPostsDto) => {
 
   const query: FilterQuery<PostDocument> = {};
 
-  if (series) {
-    query.series = series;
+  if (series && Types.ObjectId.isValid(series)) {
+    query.series = Types.ObjectId.createFromHexString(series);
   }
 
   if (tag) {
