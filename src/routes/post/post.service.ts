@@ -83,7 +83,9 @@ export class PostService {
       }
 
       if (seriesName && prevSeriesName !== seriesName) {
-        input.series = await this.seriesService.pushPostIdInSeries(seriesName, _id);
+        const newSeries = await this.seriesService.pushPostIdInSeries(seriesName, _id);
+
+        input.series = newSeries._id;
       }
 
       await this.postRepository.update(_id, input);
