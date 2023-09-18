@@ -13,7 +13,11 @@ export class TagService {
   }
 
   async getByName(name: string) {
-    return this.tagRepository.getOne({ name }, {}, { populate: "posts" });
+    return this.tagRepository.getOne(
+      { name },
+      { name: 1, postCount: { $size: "$posts" } },
+      { populate: "posts" },
+    );
   }
 
   @Transactional()
