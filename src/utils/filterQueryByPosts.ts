@@ -13,7 +13,7 @@ const filterQueryByPosts = (dto: GetPostsDto) => {
   }
 
   if (tag) {
-    query.tags = { $elemMatch: { name: tag } };
+    query.tags = tag;
   }
 
   if (text) {
