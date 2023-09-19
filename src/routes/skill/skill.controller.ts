@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 
+import { Public } from "@/common/decorators";
 import { ValidateObjectIdPipe } from "@/common/pipes/validate-objectid.pipe";
 import { CreateSkillDto } from "@/routes/skill/dto/create-skill.dto";
 import { UpdateSkillDto } from "@/routes/skill/dto/update-skill.dto";
@@ -26,6 +27,7 @@ export class SkillController {
     return true;
   }
 
+  @Public()
   @Get()
   async getAll() {
     return this.skillService.getAll();

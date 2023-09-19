@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 
+import { Public } from "@/common/decorators";
 import { ValidateObjectIdPipe } from "@/common/pipes/validate-objectid.pipe";
 import { CreateExperienceDto } from "@/routes/experience/dto/create-experience.dto";
 import { UpdateExperienceDto } from "@/routes/experience/dto/update-experience.dto";
@@ -26,6 +27,7 @@ export class ExperienceController {
     return true;
   }
 
+  @Public()
   @Get()
   async getAll() {
     return this.experienceService.getAll();
