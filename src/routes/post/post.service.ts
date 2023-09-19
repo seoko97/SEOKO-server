@@ -172,7 +172,7 @@ export class PostService {
     const projection = { _id: 1, nid: 1, title: 1 };
 
     const [prev, next] = await Promise.all([
-      this.postRepository.getOne({ nid: { $lt: targetNid } }, projection),
+      this.postRepository.getOne({ nid: { $lt: targetNid } }, projection, { sort: { nid: -1 } }),
       this.postRepository.getOne({ nid: { $gt: targetNid } }, projection),
     ]);
 
