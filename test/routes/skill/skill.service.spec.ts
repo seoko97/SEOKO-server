@@ -37,7 +37,7 @@ describe("SkillService", () => {
     let createSpy: jest.SpyInstance;
     let getOneSpy: jest.SpyInstance;
 
-    const GET_ALL_PARAMS = { name: CREATE_SKILL_STUB.name, _id: { $ne: "" } };
+    const GET_ALL_PARAMS = { name: CREATE_SKILL_STUB.name };
 
     beforeEach(() => {
       createSpy = jest.spyOn(repository, "create");

@@ -32,7 +32,7 @@ describe("ExperienceService", () => {
     let repositoryCreateSpy: jest.SpyInstance;
     let repositoryGetOneSpy: jest.SpyInstance;
 
-    const GET_ALL_PARAMS = { title: CREATE_EXPERIENCE_STUB.title, _id: { $ne: "" } };
+    const GET_ALL_PARAMS = { title: CREATE_EXPERIENCE_STUB.title };
 
     beforeEach(() => {
       repositoryCreateSpy = jest.spyOn(repository, "create");
