@@ -1,22 +1,27 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 
+import { FilterQuery } from "mongoose";
+
+import { CreateSkillDto } from "@/routes/skill/dto/create-skill.dto";
+import { UpdateSkillDto } from "@/routes/skill/dto/update-skill.dto";
 import { SkillRepository } from "@/routes/skill/skill.repository";
+import { SkillDocument } from "@/routes/skill/skill.schema";
 import { SKILL_ERROR } from "@/utils/constants";
 
 @Injectable()
 export class SkillService {
   constructor(private readonly skillRepository: SkillRepository) {}
 
-  async create(data: any) {
-    await this.checkToExistByTitle(data.name);
+  async create(data: CreateSkillDto) {
+    await this.checkToExist({ name: data.name });
 
     return await this.skillRepository.create(data);
   }
 
-  async update(_id: string, data: any) {
+  async update(_id: string, data: UpdateSkillDto) {
     await this.checkToExistById(_id);
 
-    await this.checkToExistByTitle(data.name, _id);
+    await this.checkToExist({ name: data.name, _id: { $ne: _id } });
 
     return this.skillRepository.findOneAndUpdate({ _id }, data);
   }
@@ -41,8 +46,8 @@ export class SkillService {
     return true;
   }
 
-  async checkToExistByTitle(name: string, _id = "") {
-    const skill = await this.skillRepository.getOne({ name, _id: { $ne: _id } });
+  async checkToExist(query: FilterQuery<SkillDocument>) {
+    const skill = await this.skillRepository.getOne(query);
 
     if (skill) {
       throw new BadRequestException(SKILL_ERROR.ALREADY_EXISTS);
