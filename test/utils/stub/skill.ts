@@ -5,6 +5,7 @@ import { SkillType, TFilteredSkills } from "@/types";
 
 const CREATE_SKILL_STUB: CreateSkillDto = {
   name: "test",
+  description: "test",
   type: SkillType.FRONT_END,
   icon: "test",
 };

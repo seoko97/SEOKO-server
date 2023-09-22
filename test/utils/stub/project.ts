@@ -6,6 +6,7 @@ const CREATE_PROJECT_STUB = {
   content: "content",
   thumbnail: "thumbnail",
   github: "github",
+  page: "page",
   start: "2021-01-01",
   end: "2021-01-01",
 };
