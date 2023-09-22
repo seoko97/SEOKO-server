@@ -55,7 +55,7 @@ describe("TagService", () => {
       expect(repositoryGetOneSpy).toHaveBeenCalledTimes(1);
       expect(repositoryGetOneSpy).toHaveBeenCalledWith(
         { name: TAG_STUB.name },
-        {},
+        { name: 1, postCount: { $size: "$posts" } },
         { populate: "posts" },
       );
     });
