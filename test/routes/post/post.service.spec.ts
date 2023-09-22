@@ -170,7 +170,7 @@ describe("PostService", () => {
       expect(postRepositoryGetOneSpy).toBeCalledWith({ nid });
 
       expect(postRepositoryUpdateSpy).toBeCalledTimes(1);
-      expect(postRepositoryUpdateSpy).toBeCalledWith(postId, { ...rest, series: SERIES_STUB });
+      expect(postRepositoryUpdateSpy).toBeCalledWith(postId, { ...rest, series: SERIES_STUB._id });
 
       expect(postRepositoryPushTagsSpy).toBeCalledTimes(1);
       expect(postRepositoryPushTagsSpy).toBeCalledWith(postId, [TAG_STUB]);
@@ -483,8 +483,10 @@ describe("PostService", () => {
 
       expect(post).toEqual({ prev: POST, next: POST });
       expect(postRepositoryGetOneSpy).toBeCalledTimes(2);
+      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: { $lt: POST.nid } }, projection, {
+        sort: { nid: -1 },
+      });
       expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: { $gt: POST.nid } }, projection);
-      expect(postRepositoryGetOneSpy).toBeCalledWith({ nid: { $lt: POST.nid } }, projection);
     });
   });
 });
