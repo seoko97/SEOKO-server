@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { Skill, SkillDocument, SkillModel } from "@/routes/skill/skill.schema";
-import { TFilteredSkills } from "@/types";
+import { SkillType, TFilteredSkills } from "@/types";
 
 @Injectable()
 export class SkillRepository extends BaseRepository<SkillDocument> {
@@ -20,9 +20,18 @@ export class SkillRepository extends BaseRepository<SkillDocument> {
       { $group: { _id: "$type", skills: { $push: "$$ROOT" } } },
     ]);
 
-    return skills.reduce<TFilteredSkills>((acc, { _id, skills }) => {
-      acc[_id] = skills;
-      return acc;
-    }, {} as TFilteredSkills);
+    return skills.reduce<TFilteredSkills>(
+      (acc, { _id, skills }) => {
+        acc[_id] = skills;
+
+        return acc;
+      },
+      {
+        [SkillType.FRONT_END]: [],
+        [SkillType.BACK_END]: [],
+        [SkillType.DEV_OPS]: [],
+        [SkillType.LANGUAGE]: [],
+      } as TFilteredSkills,
+    );
   }
 }
