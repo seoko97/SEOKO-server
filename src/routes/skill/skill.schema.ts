@@ -15,6 +15,10 @@ export class Skill extends BaseSchema {
   @Prop({ required: true, unique: true })
   name!: string;
 
+  @IsString({})
+  @Prop({ required: false, default: "" })
+  description!: string;
+
   @IsEnum(SkillType)
   @Prop({ required: true, enum: SkillType })
   type!: SkillType;
