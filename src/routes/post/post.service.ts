@@ -66,7 +66,7 @@ export class PostService {
   async update(nid: number, updatePostDto: UpdatePostDto) {
     const { addTags = [], deleteTags = [], series: seriesName, ...rest } = updatePostDto;
 
-    const post = await this.postRepository.getOne({ nid });
+    const post = await this.postRepository.getOne({ nid }, {}, { populate: ["series"] });
     const _id = post._id;
 
     if (!post) {

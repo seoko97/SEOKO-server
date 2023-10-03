@@ -1,0 +1,60 @@
+name: SEOKO Server Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Build and Push Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.5.1
+        with:
+          node-version: 16
+
+      - name: Install the project dependencies
+        run: yarn install
+
+      - name: Create .env file
+        run: |
+          jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' <<< "$SECRETS_CONTEXT" > .env
+          cat .env
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{secrets.DOCKER_REGISTRY_URL}}
+          username: ${{secrets.DOCKER_REGISTRY_ACCESS_KEY}}
+          password: ${{secrets.DOCKER_REGISTRY_SECRET_KEY}}
+
+      - name: Docker build & push to push
+        run: docker buildx build -t ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }} -t ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:latest --push .
+        working-directory: ${{ env.working-directory }}
+
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: [seoko-server]
+    steps:
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{secrets.DOCKER_REGISTRY_URL}}
+          username: ${{secrets.DOCKER_REGISTRY_ACCESS_KEY}}
+          password: ${{secrets.DOCKER_REGISTRY_SECRET_KEY}}
+
+      - name: Docker run
+        run: |
+          if [ `docker ps -f "name=back" -q` ]
+          then
+              docker rm -f $(docker ps -f "name=back" -q)
+          fi
+          docker pull ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }}
+          docker run -dit -p 4000:4000 --name back ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }}
