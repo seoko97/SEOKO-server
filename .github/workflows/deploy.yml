@@ -57,4 +57,4 @@ jobs:
               docker rm -f $(docker ps -f "name=back" -q)
           fi
           docker pull ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }}
-          docker run -dit -p 3065:3065 --name back ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }}
+          docker run -dit -p 4000:4000 --name back ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }}
