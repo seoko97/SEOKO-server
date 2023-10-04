@@ -29,7 +29,8 @@ export class PostService {
       const post = await this.postRepository.create(rest);
 
       if (seriesName) {
-        post.series = await this.seriesService.pushPostIdInSeries(seriesName, post._id);
+        const series = await this.seriesService.pushPostIdInSeries(seriesName, post._id);
+        post.series = series._id;
       }
 
       if (tagNames?.length) {
