@@ -10,6 +10,7 @@ import { PostRepository } from "@/routes/post/post.repository";
 import { PostDocument } from "@/routes/post/post.schema";
 import { SeriesService } from "@/routes/series/series.service";
 import { TagService } from "@/routes/tag/tag.service";
+import { IUpdatePostArgs } from "@/types";
 import { POST_ERROR, POST_FIND_PROJECTION } from "@/utils/constants";
 import { filterQueryByPosts } from "@/utils/filterQueryByPosts";
 
@@ -74,7 +75,7 @@ export class PostService {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
     }
 
-    const input = { ...rest, series: post.series ?? null };
+    const input: IUpdatePostArgs = { ...rest, series: post.series._id ?? null };
     const prevSeriesName = post.series?.name ?? null;
 
     try {
