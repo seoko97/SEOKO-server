@@ -9,4 +9,4 @@ apps:
     listen_timeout: 50000
     env_production:
       NODE_ENV: production
-      node_args: --max_old_space_size=4096 -r=./.pnp.js
+      node_args: --max_old_space_size=4096 -r=./.pnp.cjs
