@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from "@nestjs/common";
 
 import { Public } from "@/common/decorators";
-import { RealIp } from "@/common/decorators/RealIp.decorator";
+import { RealIp } from "@/common/decorators/real-ip.decorator";
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
 import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
