@@ -75,7 +75,7 @@ export class PostService {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
     }
 
-    const input: IUpdatePostArgs = { ...rest, series: post.series._id ?? null };
+    const input: IUpdatePostArgs = { ...rest, series: post.series?._id ?? null };
     const prevSeriesName = post.series?.name ?? null;
 
     try {
