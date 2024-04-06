@@ -12,7 +12,7 @@ COPY .pnp.loader.mjs .
 COPY .yarn ./.yarn
 
 
-RUN yarn install -g pm2
+RUN npm install -g pm2
 RUN yarn install
 
 COPY . .
