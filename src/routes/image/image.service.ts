@@ -27,7 +27,7 @@ export class ImageService {
     try {
       const { originalname, buffer } = image;
 
-      const filename = decodeURI(originalname).replaceAll(" ", "_");
+      const filename = `${Date.now()}_${decodeURI(originalname).replaceAll(" ", "_")}`;
 
       const imageRes = await firstValueFrom(
         this.httpService.put(
