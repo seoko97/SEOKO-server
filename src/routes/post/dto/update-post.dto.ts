@@ -1,5 +1,4 @@
 import { PickType } from "@nestjs/mapped-types";
-
 import { IsArray, IsString } from "class-validator";
 
 import { IsOptionalCustom } from "@/common/decorators/is-optional.decorator";

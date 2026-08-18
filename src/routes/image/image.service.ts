@@ -1,7 +1,6 @@
 import { HttpService, HttpModuleOptions } from "@nestjs/axios";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-
 import { firstValueFrom } from "rxjs";
 
 import { TImageType } from "@/types";

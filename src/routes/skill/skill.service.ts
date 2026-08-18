@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-
 import { FilterQuery } from "mongoose";
 
 import { CreateSkillDto } from "@/routes/skill/dto/create-skill.dto";

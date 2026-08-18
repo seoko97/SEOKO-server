@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-
 import * as bcrypt from "bcryptjs";
 import { Strategy as LStrategy } from "passport-local";
 

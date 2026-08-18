@@ -1,7 +1,6 @@
-import { CookieOptions, Response } from "express";
-
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
+import { CookieOptions, Response } from "express";
 
 import { AuthConstantProvider } from "@/common/providers/auth-constant.provider";
 import { EJwtTokenType, IRegisterTokenInCookieArgs, TTokenUser } from "@/types";
