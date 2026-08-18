@@ -91,5 +91,6 @@
       "^test/(.*)$": "<rootDir>/test/$1"
     }
   },
-  "packageManager": "yarn@3.6.1"
+    "packageManager": "pnpm@10.15.0"
 }
+
