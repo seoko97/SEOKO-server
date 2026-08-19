@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-
 import { IsString } from "class-validator";
 import { Document, Model, Types } from "mongoose";
 

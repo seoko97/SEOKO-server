@@ -2,5 +2,4 @@ test
 .vscode
 .git
 .github
-.yarn/sdks
 node_modules
