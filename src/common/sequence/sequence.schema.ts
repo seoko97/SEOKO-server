@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-
 import { Document, Model } from "mongoose";
 
 export type SequenceDocument = Sequence & Document;

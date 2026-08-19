@@ -1,5 +1,4 @@
 import { Schema, Prop } from "@nestjs/mongoose";
-
 import { IsDateString, IsMongoId, IsNumber } from "class-validator";
 
 @Schema({ _id: true })
