@@ -15,7 +15,6 @@ jobs:
       - name: Create .env file
         run: |
           jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' <<< "$SECRETS_CONTEXT" > .env
-          cat .env
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
 
@@ -28,7 +27,6 @@ jobs:
 
       - name: Docker build & push to push
         run: docker buildx build -t ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:${{ github.sha }} -t ${{secrets.DOCKER_REGISTRY_URL}}/${{secrets.BACK_DOCKER_IMAGE_NAME}}:latest --push .
-        working-directory: ${{ env.working-directory }}
 
   deploy:
     needs: build
