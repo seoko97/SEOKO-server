@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsString } from "class-validator";
-import { Document, Model, Types } from "mongoose";
+import { Document, Model, Schema as MongooseSchema } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
 import { Post } from "@/routes/post/post.schema";
@@ -20,7 +20,7 @@ export class Series extends BaseSchema {
 
   @Prop({
     ref: "Post",
-    type: [{ type: Types.ObjectId, ref: "Post" }],
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: "Post" }],
     default: [],
     required: false,
   })

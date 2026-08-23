@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsString } from "class-validator";
-import { Document, Model, Types } from "mongoose";
+import { Document, Model, Schema as MongooseSchema } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
 import { Series } from "@/routes/series/series.schema";
@@ -24,7 +24,7 @@ export class Post extends BaseSchema {
   thumbnail!: string;
 
   @Prop({
-    type: Types.ObjectId,
+    type: MongooseSchema.Types.ObjectId,
     ref: Series.name,
     required: false,
     default: null,
@@ -46,8 +46,7 @@ export class Post extends BaseSchema {
   views?: string[];
 
   @Prop({
-    type: [{ type: Types.ObjectId }],
-    ref: Tag.name,
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: Tag.name }],
     required: false,
     default: [],
   })
