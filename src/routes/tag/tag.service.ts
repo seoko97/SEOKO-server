@@ -36,9 +36,11 @@ export class TagService {
 
   @Transactional()
   async pullPostIdInTags(tagNames: string[], postId: string) {
+    const prevTags = await this.tagRepository.getAll({ name: { $in: tagNames } });
+
     await this.tagRepository.pullPostIdInTags(tagNames, postId);
 
-    return this.tagRepository.getAll({ name: { $in: tagNames } });
+    return prevTags;
   }
 
   @Transactional()
