@@ -57,7 +57,7 @@ describe("AuthController", () => {
       const result = await controller.signin(USER_ID_PASSWORD_STUB, TOKEN_USER_STUB, RESPONSE_MOCK);
 
       expect(userServiceGetByIdSpy).toHaveBeenCalledWith(TOKEN_USER_STUB._id);
-      expect(authServiceSigninSpy).toHaveBeenCalledWith(USER_STUB_NON_PASSWORD);
+      expect(authServiceSigninSpy).toHaveBeenCalledWith(TOKEN_USER_STUB);
       expect(authServiceRegisterTokenInCookieSpy).toHaveBeenCalledTimes(2);
       expect(authServiceRegisterTokenInCookieSpy).toHaveBeenCalledWith({
         type: EJwtTokenType.ACCESS,

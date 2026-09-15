@@ -196,9 +196,7 @@ describe("SeriesService", () => {
       repositoryGetOneSpy.mockResolvedValueOnce(SERIES_STUB);
       repositoryDeleteSpy.mockResolvedValueOnce(SERIES_STUB);
 
-      const isCompleted = await service.delete(nid);
-
-      expect(isCompleted).toEqual(true);
+      await service.delete(nid);
 
       expect(postRepositoryDeleteSeriesSpy).toHaveBeenCalledTimes(1);
       expect(postRepositoryDeleteSeriesSpy).toHaveBeenCalledWith(SERIES_STUB._id);

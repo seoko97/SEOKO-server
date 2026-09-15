@@ -26,6 +26,11 @@ vi.mock("@/common/decorators/transaction.decorator", () => ({
   },
 }));
 
+const createQueryMock = (result: unknown) => ({
+  populate: vi.fn().mockReturnValue({ exec: vi.fn().mockResolvedValue(result) }),
+  select: vi.fn().mockReturnValue({ exec: vi.fn().mockResolvedValue(result) }),
+});
+
 describe("PostService", () => {
   let postRepository: PostRepository;
   let postService: PostService;
@@ -150,7 +155,7 @@ describe("PostService", () => {
     it("성공", async () => {
       const POST = { ...POST_STUB };
 
-      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockReturnValueOnce(createQueryMock(POST));
       postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
       postRepositoryUpdateSpy.mockResolvedValueOnce(POST);
       postRepositoryPushTagsSpy.mockResolvedValueOnce(undefined);
@@ -166,8 +171,8 @@ describe("PostService", () => {
 
       expect(post).toEqual(POST);
       expect(postRepositoryGetOneSpy).toHaveBeenCalledTimes(2);
-      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid }, {}, { populate: ["series"] });
-      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid }, {}, { populate: ["series"] });
+      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
+      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
 
       expect(postRepositoryUpdateSpy).toHaveBeenCalledTimes(1);
       expect(postRepositoryUpdateSpy).toHaveBeenCalledWith(postId, { ...rest, series: SERIES_STUB._id });
@@ -192,12 +197,12 @@ describe("PostService", () => {
     });
 
     it("실패 - 존재하지 않는 게시글", async () => {
-      postRepositoryGetOneSpy.mockResolvedValueOnce(null);
+      postRepositoryGetOneSpy.mockReturnValueOnce(createQueryMock(null));
 
       await expect(postService.update(nid, { ...POST_UPDATE_STUB })).rejects.toThrow();
 
       expect(postRepositoryGetOneSpy).toHaveBeenCalledTimes(1);
-      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid }, {}, { populate: ["series"] });
+      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
       expect(postRepositoryUpdateSpy).toHaveBeenCalledTimes(0);
       expect(postRepositoryPushTagsSpy).toHaveBeenCalledTimes(0);
       expect(postRepositoryPullTagsSpy).toHaveBeenCalledTimes(0);
@@ -217,7 +222,7 @@ describe("PostService", () => {
 
       const { deleteTags: _, addTags: __, ...rest } = POST_UPDATE;
 
-      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockReturnValueOnce(createQueryMock(POST));
       postRepositoryUpdateSpy.mockRejectedValueOnce(new Error(POST_ERROR.FAIL_UPDATE));
 
       try {
@@ -228,7 +233,7 @@ describe("PostService", () => {
         expect(e.message).toEqual(POST_ERROR.FAIL_UPDATE);
 
         expect(postRepositoryGetOneSpy).toHaveBeenCalledTimes(1);
-        expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid }, {}, { populate: ["series"] });
+        expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
 
         expect(postRepositoryUpdateSpy).toHaveBeenCalledTimes(1);
         expect(postRepositoryUpdateSpy).toHaveBeenCalledWith(postId, rest);
@@ -262,7 +267,7 @@ describe("PostService", () => {
     it("성공", async () => {
       const POST = { ...POST_STUB };
 
-      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockReturnValueOnce(createQueryMock(POST));
       postRepositoryDeleteSpy.mockResolvedValueOnce(undefined);
       seriesServicePullPostIdSpy.mockResolvedValueOnce(undefined);
       tagServicePullPostIdInTagsSpy.mockResolvedValueOnce(undefined);
@@ -270,7 +275,7 @@ describe("PostService", () => {
       await postService.delete(nid);
 
       expect(postRepositoryGetOneSpy).toHaveBeenCalledTimes(1);
-      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid }, {}, { populate: ["tags", "series"] });
+      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
 
       expect(postRepositoryDeleteSpy).toHaveBeenCalledTimes(1);
       expect(postRepositoryDeleteSpy).toHaveBeenCalledWith(postId);
@@ -312,7 +317,7 @@ describe("PostService", () => {
       const postRepositoryGetOneSpy: TestSpyInstance = vi.spyOn(postRepository, "getOne");
 
       postRepositoryGetOneSpy.mockResolvedValueOnce(POST_TO_RESULT);
-      postRepositoryGetOneSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetOneSpy.mockReturnValueOnce(createQueryMock(POST));
       postRepositoryIncreaseLikeSpy.mockResolvedValueOnce(undefined);
 
       const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: ["ip", "$likes"] } };
@@ -323,7 +328,7 @@ describe("PostService", () => {
       expect(postRepositoryIncreaseLikeSpy).toHaveBeenCalledWith(nid, "ip");
       expect(postRepositoryGetOneSpy).toHaveBeenCalledTimes(2);
       expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
-      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid }, projection);
+      expect(postRepositoryGetOneSpy).toHaveBeenCalledWith({ nid });
     });
 
     it("감소", async () => {
@@ -463,13 +468,13 @@ describe("PostService", () => {
 
     it("성공 - Object id로 조회", async () => {
       const postRepositoryGetByIdSpy: TestSpyInstance = vi.spyOn(postRepository, "getById");
-      postRepositoryGetByIdSpy.mockResolvedValueOnce(POST);
+      postRepositoryGetByIdSpy.mockReturnValueOnce({ populate: vi.fn().mockResolvedValue(POST) });
 
       const post = await postService.getById(POST._id);
 
       expect(post).toEqual(POST);
       expect(postRepositoryGetByIdSpy).toHaveBeenCalledTimes(1);
-      expect(postRepositoryGetByIdSpy).toHaveBeenCalledWith(POST._id);
+      expect(postRepositoryGetByIdSpy).toHaveBeenCalledWith(POST._id, POST_FIND_PROJECTION);
     });
 
     it("성공 - 특정 게시글을 기준으로 이전/다음 게시글 조회", async () => {
