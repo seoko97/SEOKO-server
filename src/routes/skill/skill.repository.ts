@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { Skill, SkillDocument, SkillModel } from "@/routes/skill/skill.schema";
+import { Skill, SkillDocument, type SkillModel } from "@/routes/skill/skill.schema";
 import { SkillType, TFilteredSkills } from "@/types";
 
 @Injectable()

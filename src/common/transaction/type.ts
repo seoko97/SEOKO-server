@@ -7,4 +7,4 @@ const enum EMiddlewareTypes {
 
 type TMiddlewareType = keyof typeof EMiddlewareTypes;
 
-export { EMiddlewareTypes, TMiddlewareType };
+export { EMiddlewareTypes, type TMiddlewareType };

@@ -9,11 +9,11 @@ import {
   USER_STUB_NON_PASSWORD,
 } from "test/utils/stub";
 
+import { LocalAuthGuard, RefreshJwtAuthGuard } from "@/common/guards";
 import { AuthController } from "@/routes/auth/auth.controller";
 import { AuthService } from "@/routes/auth/auth.service";
 import { UserService } from "@/routes/user/user.service";
 import { EJwtTokenType } from "@/types";
-import { LocalAuthGuard, RefreshJwtAuthGuard } from "@/common/guards";
 
 vi.mock("@/routes/auth/auth.service");
 vi.mock("@/routes/user/user.service");

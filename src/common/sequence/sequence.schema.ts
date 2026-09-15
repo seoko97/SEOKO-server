@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Model } from "mongoose";
 
-export type SequenceDocument = Sequence & Document;
-export type SequenceModel = Model<SequenceDocument>;
+type SequenceDocument = Sequence & Document;
+type SequenceModel = Model<SequenceDocument>;
 
 @Schema()
-export class Sequence {
+class Sequence {
   @Prop({ required: true })
   target: string;
 
@@ -13,4 +13,7 @@ export class Sequence {
   seq: number;
 }
 
-export const SequenceSchema = SchemaFactory.createForClass(Sequence);
+const SequenceSchema = SchemaFactory.createForClass(Sequence);
+
+export { Sequence, SequenceSchema };
+export type { SequenceDocument, SequenceModel };

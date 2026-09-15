@@ -3,7 +3,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 
 import { ValidationImageParamPipe } from "@/common/pipes/upload-image.pipe";
 import { ImageService } from "@/routes/image/image.service";
-import { TImageType } from "@/types";
+import type { TImageType } from "@/types";
 
 @Controller("images")
 export class ImageController {

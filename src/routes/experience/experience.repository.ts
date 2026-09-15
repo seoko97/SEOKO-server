@@ -6,7 +6,7 @@ import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import {
   Experience,
   ExperienceDocument,
-  ExperienceModel,
+  type ExperienceModel,
 } from "@/routes/experience/experience.schema";
 
 @Injectable()
