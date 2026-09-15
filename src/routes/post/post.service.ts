@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, forwardRef } from "@nestjs/common";
-import { FilterQuery } from "mongoose";
+import type { QueryFilter } from "mongoose";
 
 import { Transactional } from "@/common/decorators/transaction.decorator";
 import { CreatePostDto } from "@/routes/post/dto/create-post.dto";
@@ -7,7 +7,9 @@ import { GetPostsDto } from "@/routes/post/dto/get-posts.dto";
 import { UpdatePostDto } from "@/routes/post/dto/update-post.dto";
 import { PostRepository } from "@/routes/post/post.repository";
 import { PostDocument } from "@/routes/post/post.schema";
+import { SeriesDocument } from "@/routes/series/series.schema";
 import { SeriesService } from "@/routes/series/series.service";
+import { TagDocument } from "@/routes/tag/tag.schema";
 import { TagService } from "@/routes/tag/tag.service";
 import { IUpdatePostArgs } from "@/types";
 import { POST_ERROR, POST_FIND_PROJECTION } from "@/utils/constants";
@@ -28,13 +30,16 @@ export class PostService {
     try {
       const post = await this.postRepository.create(rest);
 
+      const postId = post._id.toString();
+
       if (seriesName) {
-        const series = await this.seriesService.pushPostIdInSeries(seriesName, post._id);
+        const series = await this.seriesService.pushPostIdInSeries(seriesName, postId);
         post.series = series._id;
       }
 
       if (tagNames?.length) {
-        post.tags = await this.tagService.pushPostIdInTags(tagNames, post._id);
+        const tags = await this.tagService.pushPostIdInTags(tagNames, postId);
+        post.tags = tags.map((tag) => tag._id);
       }
 
       await this.postRepository.save(post);
@@ -47,18 +52,29 @@ export class PostService {
 
   @Transactional()
   async delete(nid: number) {
-    const post = await this.postRepository.getOne({ nid }, {}, { populate: ["tags", "series"] });
-    const _id = post._id;
+    const post = await this.postRepository
+      .getOne({ nid })
+      .populate<{
+        tags: TagDocument[];
+        series: SeriesDocument | null;
+      }>(["tags", "series"])
+      .exec();
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
     }
 
+    const postId = post._id.toString();
+
     const tagNames = post.tags.map((tag) => tag.name);
 
-    if (post.series) await this.seriesService.pullPostIdInSeries(post.series.name, _id);
-    if (tagNames.length) await this.tagService.pullPostIdInTags(tagNames, _id);
-    await this.postRepository.delete(_id);
+    if (post.series) {
+      await this.seriesService.pullPostIdInSeries(post.series.name, postId);
+    }
+    if (tagNames.length) {
+      await this.tagService.pullPostIdInTags(tagNames, postId);
+    }
+    await this.postRepository.delete(postId);
 
     return post.nid;
   }
@@ -67,37 +83,44 @@ export class PostService {
   async update(nid: number, updatePostDto: UpdatePostDto) {
     const { addTags = [], deleteTags = [], series: seriesName, ...rest } = updatePostDto;
 
-    const post = await this.postRepository.getOne({ nid }, {}, { populate: ["series"] });
-    const _id = post._id;
+    const post = await this.postRepository
+      .getOne({ nid })
+      .populate<{
+        tags: TagDocument[];
+        series: SeriesDocument | null;
+      }>(["tags", "series"])
+      .exec();
 
     if (!post) {
       throw new BadRequestException(POST_ERROR.NOT_FOUND);
     }
 
-    const input: IUpdatePostArgs = { ...rest, series: post.series?._id ?? null };
+    const postId = post._id.toString();
+
+    const input: IUpdatePostArgs = { ...rest, series: post.series?._id.toString() ?? null };
     const prevSeriesName = post.series?.name ?? null;
 
     try {
       if (prevSeriesName && prevSeriesName !== seriesName) {
         input.series = null;
-        await this.seriesService.pullPostIdInSeries(prevSeriesName, _id);
+        await this.seriesService.pullPostIdInSeries(prevSeriesName, postId);
       }
 
       if (seriesName && prevSeriesName !== seriesName) {
-        const newSeries = await this.seriesService.pushPostIdInSeries(seriesName, _id);
+        const newSeries = await this.seriesService.pushPostIdInSeries(seriesName, postId);
 
-        input.series = newSeries._id;
+        input.series = newSeries._id.toString();
       }
 
-      await this.postRepository.update(_id, input);
+      await this.postRepository.update(postId, input);
 
       const [dTags, aTags] = await Promise.all([
-        this.tagService.pullPostIdInTags(deleteTags, _id),
-        this.tagService.pushPostIdInTags(addTags, _id),
+        this.tagService.pullPostIdInTags(deleteTags, postId),
+        this.tagService.pushPostIdInTags(addTags, postId),
       ]);
 
-      await this.postRepository.pushTags(_id, aTags);
-      await this.postRepository.pullTags(_id, dTags);
+      await this.postRepository.pushTags(postId, aTags);
+      await this.postRepository.pullTags(postId, dTags);
     } catch (error) {
       throw new BadRequestException(error?.massage || POST_ERROR.FAIL_UPDATE);
     }
@@ -111,7 +134,7 @@ export class PostService {
 
     const projection = { ...POST_FIND_PROJECTION, isLiked: { $in: [ip, "$likes"] } };
 
-    const post = await this.postRepository.getOne({ nid }, projection);
+    const post = await this.postRepository.getOne({ nid }).select(projection).exec();
 
     if (post.isLiked) {
       throw new BadRequestException(POST_ERROR.ALREADY_LIKED);
@@ -166,7 +189,10 @@ export class PostService {
   }
 
   async getById(_id: string) {
-    return this.postRepository.getById(_id);
+    return this.postRepository.getById(_id, POST_FIND_PROJECTION).populate<{
+      tags: TagDocument[];
+      series: SeriesDocument;
+    }>(["tags", "series"]);
   }
 
   async getSibling(targetNid: number) {
@@ -180,7 +206,7 @@ export class PostService {
     return { prev, next };
   }
 
-  async existPost(filter: FilterQuery<PostDocument>) {
+  async existPost(filter: QueryFilter<PostDocument>) {
     const post = await this.postRepository.getOne(filter);
 
     if (!post) {

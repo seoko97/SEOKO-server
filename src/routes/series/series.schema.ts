@@ -1,12 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsString } from "class-validator";
-import { Document, Model, Schema as MongooseSchema } from "mongoose";
+import { HydratedDocument, Model, Schema as MongooseSchema, Types } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
-import { Post } from "@/routes/post/post.schema";
 
-export type SeriesDocument = Series & Document;
-export type SeriesModel = Model<SeriesDocument>;
+export type SeriesDocument = HydratedDocument<Series>;
+export type SeriesModel = Model<Series>;
 
 @Schema({ timestamps: true })
 export class Series extends BaseSchema {
@@ -24,7 +23,7 @@ export class Series extends BaseSchema {
     default: [],
     required: false,
   })
-  posts: Post[];
+  posts: Types.ObjectId[];
 }
 
 export const SeriesSchema = SchemaFactory.createForClass(Series);

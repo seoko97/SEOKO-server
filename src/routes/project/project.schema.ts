@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsDateString, IsString } from "class-validator";
-import { Document, Model } from "mongoose";
+import { HydratedDocument, Model } from "mongoose";
 
 import { IsOptionalCustom } from "@/common/decorators/is-optional.decorator";
 import { BaseSchema } from "@/common/schema/base.schema";
 
-export type ProjectDocument = Project & Document;
-export type ProjectModel = Model<ProjectDocument>;
+export type ProjectDocument = HydratedDocument<Project>;
+export type ProjectModel = Model<Project>;
 
 @Schema({ timestamps: true })
 export class Project extends BaseSchema {

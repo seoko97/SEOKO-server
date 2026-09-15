@@ -37,7 +37,7 @@ export class AuthService {
       if (!isVerify) throw new UnauthorizedException();
 
       return true;
-    } catch (e) {
+    } catch {
       throw new UnauthorizedException(AUTH_ERROR.UNAUTHORIZED);
     }
   }

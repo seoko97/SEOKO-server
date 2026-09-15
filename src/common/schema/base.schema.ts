@@ -1,10 +1,11 @@
 import { Schema, Prop } from "@nestjs/mongoose";
 import { IsDateString, IsMongoId, IsNumber } from "class-validator";
+import { Types } from "mongoose";
 
 @Schema({ _id: true })
 export class BaseSchema {
   @IsMongoId()
-  _id!: string;
+  _id!: Types.ObjectId;
 
   @IsDateString()
   createdAt!: Date;

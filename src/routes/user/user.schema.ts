@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsString } from "class-validator";
-import { Document, Model } from "mongoose";
+import { HydratedDocument, Model } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
 
-export type UserDocument = User & Document;
-export type UserModel = Model<UserDocument>;
+export type UserDocument = HydratedDocument<User>;
+export type UserModel = Model<User>;
 
 @Schema({ timestamps: true })
 export class User extends BaseSchema {

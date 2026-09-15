@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsString } from "class-validator";
-import { Document, Model, Schema as MongooseSchema } from "mongoose";
+import { HydratedDocument, Model, Schema as MongooseSchema, Types } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
 import { Series } from "@/routes/series/series.schema";
 import { Tag } from "@/routes/tag/tag.schema";
 
-export type PostDocument = Post & Document;
-export type PostModel = Model<PostDocument>;
+export type PostDocument = HydratedDocument<Post>;
+export type PostModel = Model<Post>;
 
 @Schema({ timestamps: true })
 export class Post extends BaseSchema {
@@ -29,7 +29,7 @@ export class Post extends BaseSchema {
     required: false,
     default: null,
   })
-  series?: Series;
+  series?: Types.ObjectId;
 
   @Prop({
     type: [{ type: String }],
@@ -50,7 +50,7 @@ export class Post extends BaseSchema {
     required: false,
     default: [],
   })
-  tags?: Tag[];
+  tags?: Types.ObjectId[];
 
   @Prop()
   isLiked?: boolean;

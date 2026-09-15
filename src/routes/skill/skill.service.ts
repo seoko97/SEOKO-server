@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { FilterQuery } from "mongoose";
+import type { QueryFilter } from "mongoose";
 
 import { CreateSkillDto } from "@/routes/skill/dto/create-skill.dto";
 import { UpdateSkillDto } from "@/routes/skill/dto/update-skill.dto";
@@ -45,7 +45,7 @@ export class SkillService {
     return true;
   }
 
-  async checkToExist(query: FilterQuery<SkillDocument>) {
+  async checkToExist(query: QueryFilter<SkillDocument>) {
     const skill = await this.skillRepository.getOne(query);
 
     if (skill) {

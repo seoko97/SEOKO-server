@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Model } from "mongoose";
+import { HydratedDocument, Model } from "mongoose";
 
-type SequenceDocument = Sequence & Document;
-type SequenceModel = Model<SequenceDocument>;
+export type SequenceDocument = HydratedDocument<Sequence>;
+export type SequenceModel = Model<Sequence>;
 
 @Schema()
-class Sequence {
+export class Sequence {
   @Prop({ required: true })
   target: string;
 
@@ -13,7 +13,4 @@ class Sequence {
   seq: number;
 }
 
-const SequenceSchema = SchemaFactory.createForClass(Sequence);
-
-export { Sequence, SequenceSchema };
-export type { SequenceDocument, SequenceModel };
+export const SequenceSchema = SchemaFactory.createForClass(Sequence);

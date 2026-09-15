@@ -3,10 +3,10 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { Project, ProjectDocument, type ProjectModel } from "@/routes/project/project.schema";
+import { Project, type ProjectModel } from "@/routes/project/project.schema";
 
 @Injectable()
-export class ProjectRepository extends BaseRepository<ProjectDocument> {
+export class ProjectRepository extends BaseRepository<Project> {
   constructor(
     @InjectModel(Project.name) private readonly projectModel: ProjectModel,
     sequenceRepository: SequenceRepository,

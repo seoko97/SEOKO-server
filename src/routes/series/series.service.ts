@@ -38,7 +38,9 @@ export class SeriesService {
   async pushPostIdInSeries(name: string, postId: string) {
     const series = await this.seriesRepository.findOrCreate(name);
 
-    await this.seriesRepository.pushPostIdInSeries(series._id, postId);
+    const seriesId = series._id.toString();
+
+    await this.seriesRepository.pushPostIdInSeries(seriesId, postId);
 
     return series;
   }
@@ -51,17 +53,21 @@ export class SeriesService {
       throw new BadRequestException(SERIES_ERROR.NOT_FOUND);
     }
 
-    await this.seriesRepository.pullPostIdInSeries(series._id, postId);
+    const seriesId = series._id.toString();
+
+    await this.seriesRepository.pullPostIdInSeries(seriesId, postId);
   }
 
   @Transactional()
   async delete(nid: number) {
-    const { _id } = await this.getByNumId(nid);
+    const _id = (await this.getByNumId(nid))?._id.toString();
+
+    if (!_id) {
+      return;
+    }
 
     await this.postRepository.deleteSeriesInPosts(_id);
     await this.seriesRepository.delete(_id);
-
-    return true;
   }
 
   async getAll() {

@@ -1,5 +1,3 @@
-import { User } from "@/routes/user/user.schema";
-
-type TTokenUser = Pick<User, "_id">;
+type TTokenUser = { _id: string };
 
 export type { TTokenUser };

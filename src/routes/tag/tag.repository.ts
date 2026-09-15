@@ -3,11 +3,11 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { Tag, TagDocument, type TagModel } from "@/routes/tag/tag.schema";
+import { Tag, type TagDocument, type TagModel } from "@/routes/tag/tag.schema";
 import { GET_TAGS_OPTIONS } from "@/utils/constants";
 
 @Injectable()
-export class TagRepository extends BaseRepository<TagDocument> {
+export class TagRepository extends BaseRepository<Tag> {
   constructor(
     @InjectModel(Tag.name) private readonly tagModel: TagModel,
     sequenceRepository: SequenceRepository,
@@ -24,14 +24,14 @@ export class TagRepository extends BaseRepository<TagDocument> {
 
   async pullPostIdInTags(tagNames: string[], postId: string) {
     await this.tagModel
-      .updateMany({ name: { $in: tagNames }, posts: { $in: postId } }, { $pull: { posts: postId } })
+      .updateMany({ name: { $in: tagNames }, posts: postId }, { $pull: { posts: postId } })
       .exec();
 
     await this.deleteTagsByEmptyPosts();
   }
 
   async pullPostIdByPostId(postId: string) {
-    await this.tagModel.updateMany({ posts: { $in: postId } }, { $pull: { posts: postId } });
+    await this.tagModel.updateMany({ posts: postId }, { $pull: { posts: postId } });
 
     await this.deleteTagsByEmptyPosts();
   }
@@ -40,7 +40,7 @@ export class TagRepository extends BaseRepository<TagDocument> {
     await this.tagModel.deleteMany({ posts: { $size: 0 } });
   }
 
-  async findOrCreate(name: string) {
+  async findOrCreate(name: string): Promise<TagDocument> {
     const tag = await this.tagModel.findOne({ name });
 
     if (tag) return tag;

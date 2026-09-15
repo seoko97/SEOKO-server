@@ -24,9 +24,9 @@ export class AuthController {
   async signin(_: SigninDTO, @User() _user: TTokenUser, @Res({ passthrough: true }) res: Response) {
     const user = await this.userService.getById(_user._id);
 
-    const [accessToken, refreshToken] = await this.authService.signin(user);
+    const [accessToken, refreshToken] = await this.authService.signin(_user);
 
-    await this.userService.updateRefreshToken(user._id, refreshToken);
+    await this.userService.updateRefreshToken(user._id.toString(), refreshToken);
 
     this.authService.registerTokenInCookie({
       type: EJwtTokenType.ACCESS,
