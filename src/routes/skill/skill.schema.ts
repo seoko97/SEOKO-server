@@ -19,7 +19,7 @@ export class Skill extends BaseSchema {
   description!: string;
 
   @IsEnum(SkillType)
-  @Prop({ required: true, enum: SkillType })
+  @Prop({ type: String, required: true, enum: SkillType })
   type!: SkillType;
 
   @IsString()
