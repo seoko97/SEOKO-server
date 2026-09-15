@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { Transactional } from "@/common/decorators/transaction.decorator";
 import { TagRepository } from "@/routes/tag/tag.repository";
-import { TagDocument } from "@/routes/tag/tag.schema";
+import type { TagDocument } from "@/routes/tag/tag.schema";
 
 @Injectable()
 export class TagService {
@@ -21,7 +21,7 @@ export class TagService {
   }
 
   @Transactional()
-  async pushPostIdInTags(tagNames: string[], postId: string) {
+  async pushPostIdInTags(tagNames: string[], postId: string): Promise<TagDocument[]> {
     const tags: TagDocument[] = [];
 
     for (const tagName of tagNames) {

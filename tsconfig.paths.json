@@ -2,7 +2,7 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "test/*": ["./test/*"]
+      "test/*": ["./__tests__/*"]
     }
   }
 }

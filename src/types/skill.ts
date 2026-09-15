@@ -9,4 +9,4 @@ enum SkillType {
 
 type TFilteredSkills = Record<SkillType, SkillDocument[]>;
 
-export { SkillType, TFilteredSkills };
+export { SkillType, type TFilteredSkills };

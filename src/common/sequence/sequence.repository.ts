@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 
-import { Sequence, SequenceModel } from "@/common/sequence/sequence.schema";
+import { Sequence, type SequenceModel } from "@/common/sequence/sequence.schema";
 
 @Injectable()
 export class SequenceRepository {

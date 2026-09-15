@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsDateString, IsString } from "class-validator";
-import { Document, Model } from "mongoose";
+import { HydratedDocument, Model } from "mongoose";
 
 import { IsOptionalCustom } from "@/common/decorators/is-optional.decorator";
 import { BaseSchema } from "@/common/schema/base.schema";
 
-export type ExperienceDocument = Experience & Document;
-export type ExperienceModel = Model<ExperienceDocument>;
+export type ExperienceDocument = HydratedDocument<Experience>;
+export type ExperienceModel = Model<Experience>;
 
 @Schema({ timestamps: true })
 export class Experience extends BaseSchema {

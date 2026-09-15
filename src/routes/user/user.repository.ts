@@ -5,12 +5,12 @@ import * as bcrypt from "bcryptjs";
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 import { CreateUserDTO } from "@/routes/user/dto/create-user.dto";
-import { User, UserDocument, UserModel } from "@/routes/user/user.schema";
+import { User, type UserModel } from "@/routes/user/user.schema";
 
 const BCRYPT_SALT = 10;
 
 @Injectable()
-export class UserRepository extends BaseRepository<UserDocument> {
+export class UserRepository extends BaseRepository<User> {
   constructor(
     @InjectModel(User.name) private readonly userModel: UserModel,
     sequenceRepository: SequenceRepository,

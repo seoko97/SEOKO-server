@@ -34,10 +34,10 @@ export class AuthService {
 
       const isVerify = await this.jwtService.verify(refreshToken, options);
 
-      if (!Boolean(isVerify)) throw new UnauthorizedException();
+      if (!isVerify) throw new UnauthorizedException();
 
       return true;
-    } catch (e) {
+    } catch {
       throw new UnauthorizedException(AUTH_ERROR.UNAUTHORIZED);
     }
   }

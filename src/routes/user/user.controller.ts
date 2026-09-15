@@ -3,7 +3,7 @@ import { Body, Controller, Get, Post } from "@nestjs/common";
 import { Public, User } from "@/common/decorators";
 import { CreateUserDTO } from "@/routes/user/dto/create-user.dto";
 import { UserService } from "@/routes/user/user.service";
-import { TTokenUser } from "@/types";
+import type { TTokenUser } from "@/types";
 
 @Controller("users")
 export class UserController {

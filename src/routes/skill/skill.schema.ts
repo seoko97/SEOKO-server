@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { IsEnum, IsString } from "class-validator";
-import { Document, Model } from "mongoose";
+import { HydratedDocument, Model } from "mongoose";
 
 import { BaseSchema } from "@/common/schema/base.schema";
 import { SkillType } from "@/types";
 
-export type SkillDocument = Skill & Document;
-export type SkillModel = Model<SkillDocument>;
+export type SkillDocument = HydratedDocument<Skill>;
+export type SkillModel = Model<Skill>;
 
 @Schema({ timestamps: true })
 export class Skill extends BaseSchema {
@@ -19,7 +19,7 @@ export class Skill extends BaseSchema {
   description!: string;
 
   @IsEnum(SkillType)
-  @Prop({ required: true, enum: SkillType })
+  @Prop({ type: String, required: true, enum: SkillType })
   type!: SkillType;
 
   @IsString()

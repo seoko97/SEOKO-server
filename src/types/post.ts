@@ -5,4 +5,4 @@ interface IUpdatePostArgs {
   series?: string | null;
 }
 
-export { IUpdatePostArgs };
+export type { IUpdatePostArgs };

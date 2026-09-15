@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { FilterQuery } from "mongoose";
+import type { QueryFilter } from "mongoose";
 
 import { CreateExperienceDto } from "@/routes/experience/dto/create-experience.dto";
 import { UpdateExperienceDto } from "@/routes/experience/dto/update-experience.dto";
 import { ExperienceRepository } from "@/routes/experience/experience.repository";
-import { SkillDocument } from "@/routes/skill/skill.schema";
+import { ExperienceDocument } from "@/routes/experience/experience.schema";
 import { EXPERIENCE_ERROR } from "@/utils/constants";
 
 @Injectable()
@@ -45,7 +45,7 @@ export class ExperienceService {
     return true;
   }
 
-  async checkToExist(query: FilterQuery<SkillDocument>) {
+  async checkToExist(query: QueryFilter<ExperienceDocument>) {
     const experience = await this.experienceRepository.getOne(query);
 
     if (experience) {

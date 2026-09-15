@@ -3,13 +3,12 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { Post, PostDocument, PostModel } from "@/routes/post/post.schema";
+import { Post, PostDocument, type PostModel } from "@/routes/post/post.schema";
 import { TagDocument } from "@/routes/tag/tag.schema";
 import { IUpdatePostArgs } from "@/types";
-import { POST_FIND_PROJECTION } from "@/utils/constants";
 
 @Injectable()
-export class PostRepository extends BaseRepository<PostDocument> {
+export class PostRepository extends BaseRepository<Post> {
   constructor(
     @InjectModel(Post.name) private readonly postModel: PostModel,
     sequenceRepository: SequenceRepository,
@@ -30,16 +29,20 @@ export class PostRepository extends BaseRepository<PostDocument> {
   }
 
   async pushTags(postId: string, tags: TagDocument[]) {
+    const tagIds = tags.map((tag) => tag._id);
+
     return this.postModel.updateOne(
-      { _id: postId, tags: { $nin: tags } },
-      { $push: { tags: { $each: tags } } },
+      { _id: postId },
+      { $addToSet: { tags: { $each: tagIds } } },
     );
   }
 
   async pullTags(postId: string, tags: TagDocument[]) {
+    const tagIds = tags.map((tag) => tag._id);
+
     return this.postModel.updateOne(
-      { _id: postId, tags: { $in: tags } },
-      { $pull: { tags: { $in: tags } } },
+      { _id: postId, tags: { $in: tagIds } },
+      { $pull: { tags: { $in: tagIds } } },
     );
   }
 
@@ -56,10 +59,6 @@ export class PostRepository extends BaseRepository<PostDocument> {
   }
 
   async isViewed(nid: number, ip: string) {
-    return this.postModel.exists({ nid, views: { $in: ip } });
-  }
-
-  async getById(_id: string) {
-    return super.getById(_id, POST_FIND_PROJECTION, { populate: ["tags", "series"] });
+    return this.postModel.exists({ nid, views: { $in: [ip] } });
   }
 }

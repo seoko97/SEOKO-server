@@ -1,19 +1,21 @@
-import { FilterQuery, Document as MDocument, Model, ProjectionType, QueryOptions } from "mongoose";
+import type { HydratedDocument, Model, QueryFilter, QueryOptions } from "mongoose";
 
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
 
-export class BaseRepository<Document extends MDocument, CreateDto = unknown, UpdateDto = unknown> {
+export class BaseRepository<RawDocument extends object, CreateDto = unknown, UpdateDto = unknown> {
   constructor(
-    private readonly model: Model<Document>,
+    private readonly model: Model<RawDocument>,
     private readonly sequenceRepository: SequenceRepository,
   ) {}
 
-  async create(data: CreateDto): Promise<Document> {
+  async create(data: CreateDto) {
     const modelName = this.model.modelName.toLowerCase();
 
     const nid = await this.sequenceRepository.getNextSequence(modelName);
 
-    return this.model.create({ nid, ...data });
+    const created = new this.model({ nid, ...data });
+
+    return created.save() as unknown as HydratedDocument<RawDocument>;
   }
 
   async update(_id: string, data: UpdateDto) {
@@ -21,14 +23,17 @@ export class BaseRepository<Document extends MDocument, CreateDto = unknown, Upd
   }
 
   async findOneAndUpdate(
-    filter: FilterQuery<Document>,
+    filter: QueryFilter<RawDocument>,
     data: UpdateDto,
-    options: QueryOptions<Document> = {},
+    options: QueryOptions<RawDocument> = {},
   ) {
-    return this.model.findOneAndUpdate(filter, data, { new: true, ...options });
+    return this.model.findOneAndUpdate(filter, data, { returnDocument: "after", ...options });
   }
 
-  async findOneAndDelete(filter: FilterQuery<Document>, options: QueryOptions<Document> = {}) {
+  async findOneAndDelete(
+    filter: QueryFilter<RawDocument>,
+    options: QueryOptions<RawDocument> = {},
+  ) {
     return this.model.findOneAndDelete(filter, options);
   }
 
@@ -36,27 +41,27 @@ export class BaseRepository<Document extends MDocument, CreateDto = unknown, Upd
     await this.model.deleteOne({ _id });
   }
 
-  async getOne(
-    filter: FilterQuery<Document> = {},
-    projection: ProjectionType<Document> = {},
-    options: QueryOptions<Document> = {},
+  getOne(
+    filter: QueryFilter<RawDocument> = {},
+    projection: string | Record<string, number | boolean | string | object> = {},
+    options: QueryOptions<RawDocument> = {},
   ) {
-    return this.model.findOne(filter, projection, options);
+    return this.model.findOne(filter).setOptions(options).select(projection);
   }
 
-  async getById(
+  getById(
     _id: string,
-    projection: ProjectionType<Document> = {},
-    options: QueryOptions<Document> = {},
+    projection: string | Record<string, number | boolean | string | object> = {},
+    options: QueryOptions<RawDocument> = {},
   ) {
-    return this.model.findById(_id, projection, options);
+    return this.model.findById(_id).setOptions(options).select(projection);
   }
 
-  async getAll(
-    filter: FilterQuery<Document> = {},
-    projection: ProjectionType<Document> = {},
-    options: QueryOptions<Document> = {},
+  getAll(
+    filter: QueryFilter<RawDocument> = {},
+    projection: string | Record<string, number | boolean | string | object> = {},
+    options: QueryOptions<RawDocument> = {},
   ) {
-    return this.model.find(filter, projection, options);
+    return this.model.find(filter).setOptions(options).select(projection);
   }
 }

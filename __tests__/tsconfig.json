@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "..",
+    "types": ["vitest/globals", "node", "express", "multer"]
+  },
+  "exclude": [],
+  "include": ["./**/*.ts"]
+}

@@ -3,11 +3,11 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { Series, SeriesDocument, SeriesModel } from "@/routes/series/series.schema";
+import { Series, type SeriesModel } from "@/routes/series/series.schema";
 import { SERIES_FIND_PROJECTION } from "@/utils/constants";
 
 @Injectable()
-export class SeriesRepository extends BaseRepository<SeriesDocument> {
+export class SeriesRepository extends BaseRepository<Series> {
   constructor(
     @InjectModel(Series.name) private readonly seriesModel: SeriesModel,
     sequenceRepository: SequenceRepository,
@@ -19,7 +19,7 @@ export class SeriesRepository extends BaseRepository<SeriesDocument> {
     return this.seriesModel.updateOne(
       {
         _id: seriesId,
-        posts: { $nin: postId },
+        posts: { $nin: [postId] },
       },
       { $push: { posts: postId } },
     );
@@ -35,11 +35,11 @@ export class SeriesRepository extends BaseRepository<SeriesDocument> {
     );
   }
 
-  async getAll() {
+  getAll() {
     return this.seriesModel.find({}, { ...SERIES_FIND_PROJECTION });
   }
 
-  async getById(_id: string) {
+  getById(_id: string) {
     return this.seriesModel.findById(_id, SERIES_FIND_PROJECTION);
   }
 

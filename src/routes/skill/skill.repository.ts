@@ -3,11 +3,11 @@ import { InjectModel } from "@nestjs/mongoose";
 
 import { BaseRepository } from "@/common/repository/base.repository";
 import { SequenceRepository } from "@/common/sequence/sequence.repository";
-import { Skill, SkillDocument, SkillModel } from "@/routes/skill/skill.schema";
+import { Skill, type SkillModel } from "@/routes/skill/skill.schema";
 import { SkillType, TFilteredSkills } from "@/types";
 
 @Injectable()
-export class SkillRepository extends BaseRepository<SkillDocument> {
+export class SkillRepository extends BaseRepository<Skill> {
   constructor(
     @InjectModel(Skill.name) private readonly skillModel: SkillModel,
     sequenceRepository: SequenceRepository,

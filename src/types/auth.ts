@@ -11,4 +11,4 @@ interface IRegisterTokenInCookieArgs {
   res: Response;
 }
 
-export { EJwtTokenType, IRegisterTokenInCookieArgs };
+export { EJwtTokenType, type IRegisterTokenInCookieArgs };
